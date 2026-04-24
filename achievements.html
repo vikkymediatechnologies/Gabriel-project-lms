@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybervast SmartLMS – Achievements</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/achievements.css">
+</head>
+<body>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🚀</div>
+            <span class="brand-text">Cybervast <em>SmartLMS</em></span>
+        </div>
+
+        <div class="sidebar-search">
+            <span class="search-icon">⌕</span>
+            <input type="text" placeholder="Search anything…" class="search-input" id="global-search">
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">⌂</span> Dashboard</a></li>
+                <li><a href="course.html"    class="nav-link"><span class="nav-icon">◫</span> My Courses</a></li>
+                <li><a href="planner.html"   class="nav-link"><span class="nav-icon">◷</span> Study Planner</a></li>
+                <li><a href="chat.html"      class="nav-link"><span class="nav-icon">◉</span> Chat Support</a></li>
+                <li><a href="achievements.html" class="nav-link active"><span class="nav-icon">◈</span> Achievements</a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-ghost w-full" onclick="toggleTheme()">
+                <span id="theme-icon">☀</span> Toggle Theme
+            </button>
+            <button class="btn-danger w-full">⎋ Logout</button>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════ MOBILE HEADER ═══════════════════ -->
+    <header class="mobile-header">
+        <div class="mobile-brand"><span>🚀</span> SmartLMS</div>
+        <div class="mobile-actions">
+            <button onclick="toggleTheme()" class="icon-btn"><span id="theme-icon-mobile">☀</span></button>
+            <button class="icon-btn">⎋</button>
+            <button class="icon-btn hamburger" onclick="toggleSidebar()">☰</button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+    <main class="main-content">
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-text">
+                <div class="page-badge">🏆 Hall of Fame</div>
+                <h1>Your <span class="accent">Achievements</span></h1>
+                <p>Track your certificates, completed courses, and learning milestones.</p>
+            </div>
+            <div class="stats-pill-row">
+                <div class="stats-pill">
+                    <span class="pill-val" id="cert-count">0</span>
+                    <span class="pill-label">Certificates</span>
+                </div>
+                <div class="stats-pill">
+                    <span class="pill-val" id="course-count">0</span>
+                    <span class="pill-label">Completed</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══ EMPTY STATE (management account) ═══ -->
+        <div id="management-notice" class="notice-card" style="display:none;">
+            <div class="notice-icon">🛡️</div>
+            <h3>Management Account</h3>
+            <p>Certificates and completion tracking are only available for Learner accounts. As a management user, you have access to admin tools instead.</p>
+        </div>
+
+        <!-- ═══ CERTIFICATES SECTION ═══ -->
+        <section class="section" id="certs-section">
+            <div class="section-header">
+                <h2>Earned Certificates</h2>
+                <span class="section-tag" id="certs-tag">0 earned</span>
+            </div>
+
+            <!-- Empty state -->
+            <div id="certs-empty" class="empty-state">
+                <div class="empty-icon">🎓</div>
+                <h3>No certificates yet</h3>
+                <p>Complete 100% of any course to unlock your certificate here.</p>
+                <a href="course.html" class="btn-primary-sm">Browse Courses →</a>
+            </div>
+
+            <!-- Certificates will be injected here -->
+            <div id="certificates-list" class="certs-grid"></div>
+        </section>
+
+        <!-- ═══ COMPLETED COURSES SECTION ═══ -->
+        <section class="section" id="courses-section">
+            <div class="section-header">
+                <h2>Completed Courses</h2>
+                <span class="section-tag" id="courses-tag">0 courses</span>
+            </div>
+
+            <!-- Empty state -->
+            <div id="courses-empty" class="empty-state">
+                <div class="empty-icon">📚</div>
+                <h3>No completed courses yet</h3>
+                <p>Keep learning — your completed courses will appear here.</p>
+            </div>
+
+            <div id="completed-courses-list" class="courses-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- ═══ CERTIFICATE DOWNLOAD MODAL ═══ -->
+    <div id="cert-modal" class="modal-overlay" style="display:none;" onclick="closeCertModal(event)">
+        <div class="modal-box" id="cert-modal-box">
+            <button class="modal-close" onclick="document.getElementById('cert-modal').style.display='none'">✕</button>
+
+            <!-- The printable certificate -->
+            <div class="certificate" id="certificate-printable">
+                <div class="cert-watermark">CYBERVAST</div>
+                <div class="cert-corner tl"></div>
+                <div class="cert-corner tr"></div>
+                <div class="cert-corner bl"></div>
+                <div class="cert-corner br"></div>
+
+                <div class="cert-header">
+                    <div class="cert-logo">🚀</div>
+                    <p class="cert-org">Cybervast SmartLMS</p>
+                </div>
+
+                <p class="cert-sub">This is to certify that</p>
+                <h2 class="cert-name" id="cert-name-display">Learner</h2>
+                <p class="cert-sub">has successfully completed the course</p>
+                <h3 class="cert-course" id="cert-course-display">Course Title</h3>
+
+                <div class="cert-meta">
+                    <div class="cert-meta-item">
+                        <span class="meta-label">Date Issued</span>
+                        <span class="meta-val" id="cert-date-display">—</span>
+                    </div>
+                    <div class="cert-seal">✦</div>
+                    <div class="cert-meta-item" style="text-align:right;">
+                        <span class="meta-label">Certificate ID</span>
+                        <span class="meta-val cert-id-mono" id="cert-id-display">—</span>
+                    </div>
+                </div>
+
+                <div class="cert-signature-row">
+                    <div class="cert-sig-block">
+                        <div class="sig-line"></div>
+                        <span>Director of Programme</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+                <button class="btn-close-modal" onclick="document.getElementById('cert-modal').style.display='none'">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ══════════════════════════════════════════
+       DEMO DATA — replace with your real data
+       source (localStorage / API) as needed
+    ══════════════════════════════════════════ */
+    const DEMO_COURSES = [
+        {
+            id: 'course-001',
+            title: 'Web Development Fundamentals',
+            emoji: '🌐',
+            progress: 100,
+            completedDate: new Date('2024-11-12'),
+            modules: 8
+        },
+        {
+            id: 'course-002',
+            title: 'UI/UX Design Principles',
+            emoji: '🎨',
+            progress: 100,
+            completedDate: new Date('2024-12-03'),
+            modules: 6
+        },
+        {
+            id: 'course-003',
+            title: 'Python for Data Science',
+            emoji: '🐍',
+            progress: 60,          // Not complete — won't show cert
+            completedDate: null,
+            modules: 10
+        }
+    ];
+
+    /* ══════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════ */
+    function generateCertId(courseId, email = 'learner@example.com') {
+        const str = `${email}-${courseId}`;
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const c = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + c;
+            hash = hash & hash;
+        }
+        const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+        return `LMS-${hex}-${courseId.split('-')[1] || '000'}`;
+    }
+
+    function formatDate(d) {
+        if (!d) return '—';
+        return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getLearnerName() {
+        try {
+            const s = JSON.parse(localStorage.getItem('lms-session'));
+            return s?.name || s?.email?.split('@')[0] || 'Learner';
+        } catch { return 'Learner'; }
+    }
+
+    /* ══════════════════════════════════════════
+       RENDER
+    ══════════════════════════════════════════ */
+    function renderAchievements() {
+        const certsList   = document.getElementById('certificates-list');
+        const coursesList = document.getElementById('completed-courses-list');
+        const certsEmpty  = document.getElementById('certs-empty');
+        const coursesEmpty= document.getElementById('courses-empty');
+        const certsTag    = document.getElementById('certs-tag');
+        const coursesTag  = document.getElementById('courses-tag');
+        const certCount   = document.getElementById('cert-count');
+        const courseCount = document.getElementById('course-count');
+
+        // Check management account
+        try {
+            const s = JSON.parse(localStorage.getItem('lms-session'));
+            if (s && s.role && s.role !== 'user') {
+                document.getElementById('management-notice').style.display = 'flex';
+                document.getElementById('certs-section').style.display = 'none';
+                document.getElementById('courses-section').style.display = 'none';
+                return;
+            }
+        } catch {}
+
+        const completed = DEMO_COURSES.filter(c => c.progress >= 100);
+        certCount.textContent  = completed.length;
+        courseCount.textContent= completed.length;
+        certsTag.textContent   = `${completed.length} earned`;
+        coursesTag.textContent = `${completed.length} course${completed.length !== 1 ? 's' : ''}`;
+
+        if (completed.length === 0) {
+            certsEmpty.style.display  = 'flex';
+            coursesEmpty.style.display= 'flex';
+            return;
+        }
+
+        certsEmpty.style.display   = 'none';
+        coursesEmpty.style.display = 'none';
+
+        const learner = getLearnerName();
+
+        completed.forEach((course, i) => {
+            const certId = generateCertId(course.id);
+
+            /* ── Certificate card ── */
+            const certCard = document.createElement('div');
+            certCard.className = 'cert-card animate-in';
+            certCard.style.animationDelay = `${i * 0.1}s`;
+            certCard.innerHTML = `
+                <div class="cert-card-ribbon">✦ Certified</div>
+                <div class="cert-card-top">
+                    <div class="cert-card-emoji">${course.emoji}</div>
+                    <div class="cert-card-info">
+                        <h3>${course.title}</h3>
+                        <p class="cert-card-date">Completed ${formatDate(course.completedDate)}</p>
+                        <p class="cert-card-id">${certId}</p>
+                    </div>
+                </div>
+                <div class="cert-card-actions">
+                    <button class="btn-view-cert" onclick="openCertModal('${course.title}', '${learner}', '${certId}', '${formatDate(course.completedDate)}')">
+                        👁 View Certificate
+                    </button>
+                    <button class="btn-download-cert" onclick="openCertModal('${course.title}', '${learner}', '${certId}', '${formatDate(course.completedDate)}')">
+                        ↓ Download
+                    </button>
+                </div>
+            `;
+            certsList.appendChild(certCard);
+
+            /* ── Completed course card ── */
+            const courseCard = document.createElement('div');
+            courseCard.className = 'course-card animate-in';
+            courseCard.style.animationDelay = `${i * 0.12}s`;
+            courseCard.innerHTML = `
+                <div class="course-card-emoji">${course.emoji}</div>
+                <div class="course-card-body">
+                    <h4>${course.title}</h4>
+                    <p class="course-card-meta">${course.modules} modules · Completed</p>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <span class="complete-badge">✅ 100% Complete</span>
+                </div>
+                <a href="course.html" class="btn-review" onclick="localStorage.setItem('lms-active-course','${course.id}')">Review →</a>
+            `;
+            coursesList.appendChild(courseCard);
+        });
+    }
+
+    /* ══════════════════════════════════════════
+       CERTIFICATE MODAL
+    ══════════════════════════════════════════ */
+    function openCertModal(title, learner, certId, date) {
+        document.getElementById('cert-course-display').textContent = title;
+        document.getElementById('cert-name-display').textContent   = learner;
+        document.getElementById('cert-id-display').textContent     = certId;
+        document.getElementById('cert-date-display').textContent   = date;
+        document.getElementById('cert-modal').style.display        = 'flex';
+    }
+
+    function closeCertModal(e) {
+        if (e.target === document.getElementById('cert-modal')) {
+            document.getElementById('cert-modal').style.display = 'none';
+        }
+    }
+
+    /* ══════════════════════════════════════════
+       THEME TOGGLE
+    ══════════════════════════════════════════ */
+    function toggleTheme() {
+        const html  = document.documentElement;
+        const isDark= html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon  = isDark ? '☽' : '☀';
+        document.getElementById('theme-icon').textContent       = icon;
+        document.getElementById('theme-icon-mobile').textContent= icon;
+    }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR (mobile)
+    ══════════════════════════════════════════ */
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('visible');
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', renderAchievements);
+    </script>
+</body>
+</html>

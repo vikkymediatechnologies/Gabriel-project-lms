@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybervast SmartLMS – Chat Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">🚀</div>
+            <span class="brand-text">Cybervast <em>SmartLMS</em></span>
+        </div>
+
+        <div class="sidebar-search">
+            <span class="search-icon">⌕</span>
+            <input type="text" placeholder="Search anything…" class="search-input" id="global-search">
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="dashboard.html" class="nav-link"><span class="nav-icon">⌂</span> Dashboard</a></li>
+                <li><a href="course.html" class="nav-link"><span class="nav-icon">◫</span> My Courses</a></li>
+                <li><a href="planner.html" class="nav-link"><span class="nav-icon">◷</span> Study Planner</a></li>
+                <li><a href="chat.html" class="nav-link active"><span class="nav-icon">◉</span> Chat Support</a></li>
+                <li><a href="achievements.html" class="nav-link"><span class="nav-icon">◈</span> Achievements</a></li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="btn-ghost w-full" onclick="toggleTheme()">
+                <span id="theme-icon">☀</span> Toggle Theme
+            </button>
+            <button class="btn-danger w-full">⎋ Logout</button>
+        </div>
+    </aside>
+
+    <!-- ═══════════════════ MOBILE HEADER ═══════════════════ -->
+    <header class="mobile-header">
+        <div class="mobile-brand">
+            <span>🚀</span> SmartLMS
+        </div>
+        <div class="mobile-actions">
+            <button onclick="toggleTheme()" class="icon-btn" title="Toggle Theme"><span id="theme-icon-mobile">☀</span></button>
+            <button class="icon-btn" title="Logout">⎋</button>
+            <button class="icon-btn hamburger" id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+    <main class="main-content">
+
+        <header class="page-header">
+            <div class="header-text">
+                <div class="page-badge">💬 Live Support</div>
+                <h1>Chat <span class="accent">Support</span></h1>
+                <p>Ask our AI assistant anything about courses, certificates, and your learning journey.</p>
+            </div>
+            <div class="header-status">
+                <span class="status-dot"></span> AI Online
+            </div>
+        </header>
+
+        <!-- ═══ CHAT WIDGET ═══ -->
+        <div class="chat-card">
+
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="bot-avatar">
+                    <span>🤖</span>
+                    <span class="avatar-ping"></span>
+                </div>
+                <div class="bot-info">
+                    <strong>Cybervast Assistant</strong>
+                    <small>Replies instantly · Always available</small>
+                </div>
+                <button class="clear-btn" id="clear-btn" title="Clear chat" onclick="clearChat()">✕ Clear</button>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot animate-in">
+                    <div class="msg-bubble">
+                        <p>Hey there! 👋 I'm your Cybervast assistant. Ask me anything about:</p>
+                        <div class="quick-chips">
+                            <button class="chip" onclick="sendChip(this)">📜 Certificates</button>
+                            <button class="chip" onclick="sendChip(this)">📚 Lessons</button>
+                            <button class="chip" onclick="sendChip(this)">📝 Quizzes</button>
+                            <button class="chip" onclick="sendChip(this)">📅 Study Planner</button>
+                            <button class="chip" onclick="sendChip(this)">🔑 Account</button>
+                        </div>
+                    </div>
+                    <time>Just now</time>
+                </div>
+            </div>
+
+            <!-- Typing indicator (hidden by default) -->
+            <div class="typing-indicator" id="typing-indicator" style="display:none;">
+                <span></span><span></span><span></span>
+            </div>
+
+            <!-- Input Form -->
+            <form class="chat-input-area" id="chat-form" onsubmit="handleSubmit(event)">
+                <input
+                    type="text"
+                    id="chat-input"
+                    class="chat-input"
+                    placeholder="Type your question…"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="send-btn" aria-label="Send">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- ═══ CONTACT CARDS ═══ -->
+        <div class="contact-section">
+            <p class="contact-label">Still need help? Reach a real person:</p>
+            <div class="contact-grid">
+                <a href="https://wa.me/+2349123039135" target="_blank" class="contact-card whatsapp">
+                    <div class="contact-icon-wrap">📱</div>
+                    <div class="contact-details">
+                        <strong>WhatsApp</strong>
+                        <span>Chat with us live</span>
+                    </div>
+                    <div class="contact-arrow">↗</div>
+                </a>
+                <a href="mailto:support@cybervast.ng" class="contact-card email">
+                    <div class="contact-icon-wrap">✉️</div>
+                    <div class="contact-details">
+                        <strong>Email Support</strong>
+                        <span>support@cybervast.ng</span>
+                    </div>
+                    <div class="contact-arrow">↗</div>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+    /* ─────────────────────────────────────────
+       FAQ DATA
+    ───────────────────────────────────────── */
+    const FAQ_DATA = [
+        {
+            keywords: ['certificate', 'cert', 'award', 'diploma', 'download cert'],
+            answer: "🎓 You earn your certificate once you complete 100% of the course lessons and pass all assessments. Head to the <strong>Achievements</strong> page to download it anytime!"
+        },
+        {
+            keywords: ['lesson', 'module', 'content', 'video', 'watch'],
+            answer: "📖 Lessons are completed right inside the course player — just tick each one as you finish. Once a whole module is done, its quiz unlocks automatically."
+        },
+        {
+            keywords: ['planner', 'study plan', 'schedule', 'hours', 'time'],
+            answer: "📅 The Smart Study Planner checks whether your goals are realistic by comparing your course's remaining hours with the daily time you've set aside. Adjust either value to rebalance your plan."
+        },
+        {
+            keywords: ['enroll', 'start', 'join', 'take course', 'sign up for'],
+            answer: "✅ To enroll, go to the <strong>Dashboard</strong>, pick a course, and hit <em>Enroll</em>. Note: editors can only enroll in courses they created."
+        },
+        {
+            keywords: ['password', 'account', 'login', 'profile', 'settings'],
+            answer: "🔑 You can update your profile and password in the account settings. Locked out? Contact your administrator for a reset."
+        },
+        {
+            keywords: ['quiz', 'test', 'assessment', 'exam', 'score', 'pass'],
+            answer: "📝 Quizzes appear at the end of each module. You need <strong>70% or higher</strong> to pass and unlock the next module. You can retake them if you don't pass first time."
+        },
+        {
+            keywords: ['achievement', 'badge', 'reward', 'points', 'streak'],
+            answer: "🏆 The Achievements page tracks all your badges, streaks, and certificates. Keep completing modules to unlock new rewards!"
+        },
+        {
+            keywords: ['hello', 'hi', 'hey', 'greetings', 'good morning', 'good evening', 'sup'],
+            answer: "👋 Hello! Great to see you here. I can answer questions about certificates, lessons, quizzes, the study planner, or your account. What do you need?"
+        },
+        {
+            keywords: ['thank', 'thanks', 'appreciate', 'great', 'helpful'],
+            answer: "😊 Happy to help! If you have any more questions, just ask."
+        },
+        {
+            keywords: ['help', '?', 'what can you do', 'options'],
+            answer: "ℹ️ I can help with: <strong>Certificates</strong>, <strong>Lessons</strong>, <strong>Quizzes</strong>, <strong>Study Planner</strong>, <strong>Enrollment</strong>, and <strong>Account</strong> questions. Just type your question!"
+        }
+    ];
+
+    /* ─────────────────────────────────────────
+       BOT LOGIC
+    ───────────────────────────────────────── */
+    function getBotResponse(input) {
+        const lower = input.toLowerCase().trim();
+        if (lower === 'help' || lower === '?') {
+            return "ℹ️ I can help with: <strong>Certificates</strong>, <strong>Lessons</strong>, <strong>Quizzes</strong>, <strong>Study Planner</strong>, <strong>Enrollment</strong>, and <strong>Account</strong> questions. Just ask!";
+        }
+        const match = FAQ_DATA.find(faq =>
+            faq.keywords.some(kw => lower.includes(kw))
+        );
+        return match
+            ? match.answer
+            : "🤔 Hmm, I'm not sure about that one. Try asking about <strong>certificates</strong>, <strong>lessons</strong>, <strong>quizzes</strong>, or type <em>help</em> to see all topics.";
+    }
+
+    /* ─────────────────────────────────────────
+       UI HELPERS
+    ───────────────────────────────────────── */
+    function getTime() {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function scrollBottom() {
+        const msgs = document.getElementById('chat-messages');
+        msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
+    }
+
+    function addMessage(html, sender) {
+        const msgs = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = `message ${sender} animate-in`;
+        div.innerHTML = `<div class="msg-bubble">${html}</div><time>${getTime()}</time>`;
+        msgs.appendChild(div);
+        scrollBottom();
+    }
+
+    function showTyping() {
+        document.getElementById('typing-indicator').style.display = 'flex';
+        scrollBottom();
+    }
+
+    function hideTyping() {
+        document.getElementById('typing-indicator').style.display = 'none';
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user');
+        input.value = '';
+        input.focus();
+
+        showTyping();
+        const delay = 700 + Math.random() * 400;
+        setTimeout(() => {
+            hideTyping();
+            addMessage(getBotResponse(text), 'bot');
+        }, delay);
+    }
+
+    function sendChip(el) {
+        const text = el.textContent.replace(/^[^\w]+/, '').trim();
+        document.getElementById('chat-input').value = text;
+        handleSubmit(new Event('submit'));
+        // Remove chips after first use
+        const chips = document.querySelector('.quick-chips');
+        if (chips) chips.remove();
+    }
+
+    function clearChat() {
+        const msgs = document.getElementById('chat-messages');
+        msgs.innerHTML = '';
+        addMessage("Chat cleared! How can I help you? Type <em>help</em> to see what I can do. 😊", 'bot');
+    }
+
+    /* ─────────────────────────────────────────
+       THEME TOGGLE
+    ───────────────────────────────────────── */
+    function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const icon = isDark ? '☽' : '☀';
+        document.getElementById('theme-icon').textContent = icon;
+        document.getElementById('theme-icon-mobile').textContent = icon;
+    }
+
+    /* ─────────────────────────────────────────
+       SIDEBAR TOGGLE (MOBILE)
+    ───────────────────────────────────────── */
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').classList.toggle('visible');
+    }
+    document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+
+    /* ─────────────────────────────────────────
+       KEYBOARD SHORTCUT: Enter to Send
+    ───────────────────────────────────────── */
+    document.getElementById('chat-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+    });
+    </script>
+</body>
+</html>

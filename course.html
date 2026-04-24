@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybervast SmartLMS — Course Player</title>
+
+  <!-- FOUC prevention -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('cv-theme') || 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+/* ══════════════════════════════════════════════
+   CSS VARIABLES (mirrors dashboard)
+══════════════════════════════════════════════ */
+:root {
+  --d-primary:        #6C21E0;
+  --d-primary-dark:   #4F13B0;
+  --d-primary-mid:    #9B59F5;
+  --d-primary-light:  #EDE8FA;
+  --d-primary-glow:   rgba(108,33,224,0.18);
+  --d-success:        #10B981;
+  --d-success-light:  #D1FAE5;
+  --d-warning:        #F59E0B;
+  --d-danger:         #EF4444;
+  --d-danger-light:   rgba(239,68,68,0.1);
+
+  --d-bg:             #F4F2FC;
+  --d-surface:        #FFFFFF;
+  --d-surface-2:      #EDE8FA;
+  --d-surface-3:      #F8F7FF;
+
+  --d-text:           #160E30;
+  --d-text-2:         #574D74;
+  --d-text-3:         #9589B0;
+
+  --d-border:         rgba(108,33,224,0.10);
+  --d-border-md:      rgba(108,33,224,0.20);
+  --d-border-strong:  rgba(108,33,224,0.32);
+
+  --d-shadow-sm:      0 1px 8px rgba(108,33,224,0.07);
+  --d-shadow:         0 4px 20px rgba(108,33,224,0.10);
+  --d-shadow-md:      0 8px 32px rgba(108,33,224,0.15);
+  --d-shadow-hover:   0 12px 40px rgba(108,33,224,0.22);
+
+  --d-sidebar-width:  264px;
+  --d-nav-height:     64px;
+  --d-radius:         14px;
+  --d-radius-lg:      20px;
+  --d-radius-sm:      8px;
+  --d-transition:     all 0.25s ease;
+}
+
+[data-theme="dark"] {
+  --d-primary:        #A06AF5;
+  --d-primary-dark:   #C49BFF;
+  --d-primary-mid:    #7B3FE4;
+  --d-primary-light:  #1A1035;
+  --d-primary-glow:   rgba(160,106,245,0.20);
+  --d-success:        #34D399;
+  --d-success-light:  #064E3B;
+  --d-warning:        #FBBF24;
+  --d-danger:         #F87171;
+  --d-danger-light:   rgba(248,113,113,0.12);
+
+  --d-bg:             #0C0818;
+  --d-surface:        #160E30;
+  --d-surface-2:      #1E1640;
+  --d-surface-3:      #120C28;
+
+  --d-text:           #EDE8FA;
+  --d-text-2:         #B5ADCF;
+  --d-text-3:         #7B7096;
+
+  --d-border:         rgba(160,106,245,0.12);
+  --d-border-md:      rgba(160,106,245,0.22);
+  --d-border-strong:  rgba(160,106,245,0.36);
+
+  --d-shadow-sm:      0 1px 8px rgba(0,0,0,0.4);
+  --d-shadow:         0 4px 20px rgba(0,0,0,0.45);
+  --d-shadow-md:      0 8px 32px rgba(0,0,0,0.5);
+  --d-shadow-hover:   0 12px 40px rgba(160,106,245,0.25);
+}
+
+/* ══════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--d-bg);
+  color: var(--d-text);
+  line-height: 1.65;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+svg { flex-shrink: 0; display: inline-block; vertical-align: middle; }
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 100dvh;
+  width: var(--d-sidebar-width);
+  background: var(--d-surface);
+  border-right: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.75rem 1.25rem 1.5rem;
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s, border-color 0.3s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--d-border-md) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--d-border-md); border-radius: 4px; }
+
+.sidebar .logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--d-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.75rem;
+  flex-shrink: 0;
+}
+.sidebar .logo svg { width: 26px; height: 26px; }
+
+.sidebar-search { margin-bottom: 1.5rem; flex-shrink: 0; position: relative; }
+.sidebar-search svg {
+  position: absolute;
+  left: 0.75rem; top: 50%;
+  transform: translateY(-50%);
+  width: 15px; height: 15px;
+  color: var(--d-text-3);
+  pointer-events: none;
+}
+.sidebar-search .form-input { padding-left: 2.2rem; height: 38px; font-size: 0.85rem; }
+
+.nav-links { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--d-radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--d-text-2);
+  transition: var(--d-transition);
+}
+.nav-link svg { width: 18px; height: 18px; }
+.nav-link:hover { background: var(--d-primary-light); color: var(--d-primary); }
+.nav-link.active {
+  background: var(--d-primary);
+  color: #fff;
+  box-shadow: 0 4px 12px var(--d-primary-glow);
+}
+[data-theme="dark"] .nav-link.active { background: var(--d-primary-mid); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--d-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════
+   OVERLAY
+══════════════════════════════════════════════ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(12,8,24,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 190;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.sidebar-overlay.open { display: block; opacity: 1; }
+
+/* ══════════════════════════════════════════════
+   MOBILE HEADER
+══════════════════════════════════════════════ */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--d-nav-height);
+  z-index: 180;
+  background: var(--d-surface);
+  border-bottom: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow-sm);
+  padding: 0 1rem;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s;
+}
+.mobile-header .logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--d-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mobile-header .logo svg { width: 20px; height: 20px; }
+.mobile-header-actions { display: flex; align-items: center; gap: 6px; }
+
+.hamburger {
+  width: 38px; height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2);
+  border: 1px solid var(--d-border);
+  cursor: pointer;
+  transition: var(--d-transition);
+  color: var(--d-text);
+}
+.hamburger svg { width: 20px; height: 20px; }
+.hamburger:hover, .hamburger.open {
+  border-color: var(--d-primary);
+  color: var(--d-primary);
+  background: var(--d-primary-light);
+}
+
+.btn-icon {
+  width: 36px; height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2);
+  border: 1px solid var(--d-border);
+  color: var(--d-text-2);
+  cursor: pointer;
+  transition: var(--d-transition);
+}
+.btn-icon svg { width: 16px; height: 16px; }
+.btn-icon:hover { border-color: var(--d-primary); color: var(--d-primary); }
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════ */
+.main-content {
+  margin-left: var(--d-sidebar-width);
+  min-height: 100dvh;
+  padding: 2rem clamp(1.25rem, 3vw, 2.5rem) 4rem;
+  transition: margin-left 0.3s ease;
+}
+
+/* ══════════════════════════════════════════════
+   TOP HEADER
+══════════════════════════════════════════════ */
+.top-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.top-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-weight: 800;
+  color: var(--d-text);
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+}
+.top-header p { font-size: 0.9rem; color: var(--d-text-2); }
+.course-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════
+   COURSE PLAYER GRID
+══════════════════════════════════════════════ */
+.course-player-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ══════════════════════════════════════════════
+   LESSON CONTENT (left pane)
+══════════════════════════════════════════════ */
+.lesson-content { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ══════════════════════════════════════════════
+   CARD
+══════════════════════════════════════════════ */
+.card {
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--d-shadow-sm);
+  transition: var(--d-transition);
+}
+
+/* ══════════════════════════════════════════════
+   LESSON DISPLAY CARD
+══════════════════════════════════════════════ */
+#lesson-display {}
+#lesson-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--d-text);
+  margin-bottom: 1rem;
+}
+#lesson-body {
+  font-size: 0.925rem;
+  color: var(--d-text-2);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* Video */
+#video-container {
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: var(--d-radius);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+#video-container iframe,
+#video-container video {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Lesson actions row */
+#lesson-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--d-border);
+  flex-wrap: wrap;
+}
+.lesson-nav-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+/* Completion badge */
+.status-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--d-success);
+  background: var(--d-success-light);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+}
+.status-completed svg { width: 15px; height: 15px; }
+
+/* Placeholder state */
+.lesson-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  gap: 1rem;
+}
+.lesson-placeholder .placeholder-icon {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--d-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+.lesson-placeholder .placeholder-icon svg { width: 30px; height: 30px; color: var(--d-primary); }
+.lesson-placeholder h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--d-text);
+}
+.lesson-placeholder p { font-size: 0.875rem; color: var(--d-text-2); max-width: 280px; }
+
+/* ══════════════════════════════════════════════
+   QUIZ CONTAINER
+══════════════════════════════════════════════ */
+#quiz-container {}
+.quiz-card { padding: 2rem; }
+.quiz-header { margin-bottom: 1.75rem; }
+.quiz-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--d-text);
+  margin-bottom: 0.35rem;
+}
+.quiz-header p { font-size: 0.875rem; color: var(--d-text-2); }
+
+.quiz-progress-bar-wrap {
+  height: 6px;
+  background: var(--d-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 1rem 0 1.75rem;
+}
+.quiz-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--d-primary), var(--d-primary-mid));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.question-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--d-text);
+  margin-bottom: 1.25rem;
+  line-height: 1.55;
+}
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.1rem;
+  border: 1.5px solid var(--d-border-md);
+  border-radius: var(--d-radius-sm);
+  cursor: pointer;
+  transition: var(--d-transition);
+  background: var(--d-surface);
+  font-size: 0.9rem;
+  color: var(--d-text-2);
+  text-align: left;
+  width: 100%;
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--d-primary);
+  background: var(--d-primary-light);
+  color: var(--d-primary);
+}
+.quiz-option.selected {
+  border-color: var(--d-primary);
+  background: var(--d-primary-light);
+  color: var(--d-primary);
+  font-weight: 600;
+}
+.quiz-option.correct {
+  border-color: var(--d-success);
+  background: var(--d-success-light);
+  color: var(--d-success);
+  font-weight: 600;
+}
+.quiz-option.incorrect {
+  border-color: var(--d-danger);
+  background: var(--d-danger-light);
+  color: var(--d-danger);
+  font-weight: 600;
+}
+.quiz-option:disabled { cursor: not-allowed; }
+
+.option-letter {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--d-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: var(--d-transition);
+}
+.quiz-option.selected .option-letter { background: var(--d-primary); color: #fff; }
+.quiz-option.correct .option-letter { background: var(--d-success); color: #fff; }
+.quiz-option.incorrect .option-letter { background: var(--d-danger); color: #fff; }
+
+.quiz-feedback {
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--d-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.quiz-feedback svg { width: 16px; height: 16px; flex-shrink: 0; }
+.quiz-feedback.correct-fb { background: var(--d-success-light); color: var(--d-success); }
+.quiz-feedback.incorrect-fb { background: var(--d-danger-light); color: var(--d-danger); }
+
+.quiz-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+/* Quiz result screen */
+.quiz-result { text-align: center; padding: 1rem 0; }
+.result-score-ring {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: conic-gradient(var(--d-primary) 0%, var(--d-surface-2) 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  position: relative;
+}
+.result-score-ring::before {
+  content: '';
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  background: var(--d-surface);
+  position: absolute;
+}
+.result-score-text {
+  position: relative;
+  z-index: 1;
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--d-primary);
+}
+.quiz-result h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--d-text);
+  margin-bottom: 0.5rem;
+}
+.quiz-result p { font-size: 0.875rem; color: var(--d-text-2); margin-bottom: 1.5rem; }
+
+/* ══════════════════════════════════════════════
+   MODULE SIDEBAR (right pane)
+══════════════════════════════════════════════ */
+.module-sidebar {
+  position: sticky;
+  top: 2rem;
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow-sm);
+  overflow: hidden;
+}
+.module-sidebar-header {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--d-border);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.module-sidebar-header svg { width: 18px; height: 18px; color: var(--d-primary); }
+.module-sidebar-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--d-text);
+}
+#modules-container { max-height: calc(100dvh - 180px); overflow-y: auto; scrollbar-width: thin; }
+
+/* Module item */
+.module-item {
+  border-bottom: 1px solid var(--d-border);
+}
+.module-item:last-child { border-bottom: none; }
+
+.module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  cursor: pointer;
+  transition: var(--d-transition);
+  gap: 0.5rem;
+  user-select: none;
+}
+.module-header:hover { background: var(--d-surface-2); }
+.module-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+.module-header-left svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--d-text-3); }
+.module-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--d-text);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.module-status-icon { flex-shrink: 0; display: flex; align-items: center; }
+.module-status-icon svg { width: 16px; height: 16px; }
+.module-chevron { transition: transform 0.2s ease; flex-shrink: 0; }
+.module-chevron svg { width: 14px; height: 14px; color: var(--d-text-3); }
+.module-item.open .module-chevron { transform: rotate(180deg); }
+
+/* Locked module */
+.module-item.module-locked .module-header { opacity: 0.55; cursor: not-allowed; }
+.module-item.module-locked .module-header:hover { background: transparent; }
+
+/* Module lessons list */
+.module-lessons {
+  background: var(--d-surface-3);
+  border-top: 1px solid var(--d-border);
+  padding: 0.5rem 0;
+  display: none;
+}
+.module-item.open .module-lessons { display: block; }
+
+.lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+  transition: var(--d-transition);
+  font-size: 0.845rem;
+  color: var(--d-text-2);
+  border-left: 3px solid transparent;
+}
+.lesson-item:hover { background: var(--d-primary-light); color: var(--d-primary); border-left-color: var(--d-primary-light); }
+.lesson-item.active { background: var(--d-primary-light); color: var(--d-primary); border-left-color: var(--d-primary); font-weight: 600; }
+.lesson-item.completed { color: var(--d-success); }
+.lesson-item svg { width: 14px; height: 14px; flex-shrink: 0; }
+.lesson-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Quiz button in module */
+.quiz-trigger-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: calc(100% - 2.5rem);
+  margin: 0.5rem 1.25rem 0.75rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--d-radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--d-surface-2);
+  color: var(--d-text-3);
+  border: 1.5px solid var(--d-border-md);
+  cursor: not-allowed;
+  transition: var(--d-transition);
+}
+.quiz-trigger-btn.ready {
+  background: var(--d-primary);
+  color: #fff;
+  border-color: var(--d-primary);
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--d-primary-glow);
+}
+.quiz-trigger-btn.ready:hover { background: var(--d-primary-dark); transform: translateY(-1px); }
+.quiz-trigger-btn.passed {
+  background: var(--d-success-light);
+  color: var(--d-success);
+  border-color: var(--d-success);
+  cursor: default;
+}
+.quiz-trigger-btn svg { width: 14px; height: 14px; }
+
+/* Course progress mini bar */
+.course-progress-wrap { padding: 1rem 1.25rem; border-top: 1px solid var(--d-border); }
+.course-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--d-text-3);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.progress-track {
+  height: 6px;
+  background: var(--d-surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--d-primary), var(--d-primary-mid));
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+/* ══════════════════════════════════════════════
+   FORM INPUT
+══════════════════════════════════════════════ */
+.form-input {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1.5px solid var(--d-border-md);
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface);
+  color: var(--d-text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+}
+.form-input::placeholder { color: var(--d-text-3); }
+.form-input:focus { border-color: var(--d-primary); box-shadow: 0 0 0 3px var(--d-primary-glow); }
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--d-radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: var(--d-transition);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--d-primary); color: #fff; border-color: var(--d-primary); }
+.btn-primary:hover { background: var(--d-primary-dark); border-color: var(--d-primary-dark); transform: translateY(-1px); box-shadow: var(--d-shadow-md); }
+.btn-outline { background: transparent; color: var(--d-text); border-color: var(--d-border-md); }
+.btn-outline:hover { background: var(--d-primary-light); color: var(--d-primary); border-color: var(--d-border-strong); }
+.btn-success { background: var(--d-success); color: #fff; border-color: var(--d-success); }
+.btn-success:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-danger { background: transparent; color: var(--d-danger); border-color: rgba(239,68,68,0.35); }
+.btn-danger:hover { background: var(--d-danger-light); border-color: var(--d-danger); }
+
+.w-full { width: 100%; }
+
+/* Theme toggle sidebar */
+#theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2);
+  color: var(--d-text-2);
+  border: 1px solid var(--d-border-md);
+  cursor: pointer;
+  width: 100%;
+  transition: var(--d-transition);
+}
+#theme-toggle svg { width: 16px; height: 16px; }
+#theme-toggle:hover { background: var(--d-primary-light); color: var(--d-primary); border-color: var(--d-border-strong); }
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+#toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem; }
+.toast {
+  background: var(--d-surface);
+  border: 1px solid var(--d-border-md);
+  border-radius: var(--d-radius);
+  padding: 0.85rem 1.25rem;
+  box-shadow: var(--d-shadow-md);
+  font-size: 0.875rem;
+  color: var(--d-text);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 320px;
+  animation: toastIn 0.3s ease;
+}
+.toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+.toast-error { border-left: 4px solid var(--d-danger); }
+.toast-error svg { color: var(--d-danger); }
+.toast-success { border-left: 4px solid var(--d-success); }
+.toast-success svg { color: var(--d-success); }
+.toast-info { border-left: 4px solid var(--d-primary); }
+.toast-info svg { color: var(--d-primary); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ══════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════ */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+.text-muted { color: var(--d-text-2); }
+.font-bold { font-weight: 700; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.gap-2 { gap: 0.5rem; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — Tablet ≤ 1024px
+══════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .course-player-grid {
+    grid-template-columns: 1fr 260px;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — Mobile ≤ 768px
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .mobile-header { display: flex; }
+
+  .sidebar {
+    left: calc(-1 * var(--d-sidebar-width));
+    box-shadow: none;
+  }
+  .sidebar.open { left: 0; box-shadow: var(--d-shadow-md); }
+
+  .main-content {
+    margin-left: 0;
+    padding-top: calc(var(--d-nav-height) + 1.25rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .course-player-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* On mobile, module sidebar comes after lesson content */
+  .module-sidebar {
+    position: static;
+    order: 2;
+  }
+  .lesson-content { order: 1; }
+
+  .top-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — Small ≤ 480px
+══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .top-header h1 { font-size: 1.25rem; }
+  #quiz-container .quiz-card { padding: 1.25rem; }
+  .quiz-actions { flex-direction: column; }
+  .quiz-actions .btn { width: 100%; }
+  .toast { right: 0.75rem; left: 0.75rem; max-width: 100%; bottom: 1rem; }
+}
+
+/* Print */
+@media print {
+  .sidebar, .mobile-header, .sidebar-overlay { display: none !important; }
+  .main-content { margin-left: 0; padding: 0; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/>
+      <path d="M12 2c0 0 4 4 4 10"/><path d="M12 2c0 0-4 4-4 10"/>
+      <path d="M2 12h20"/><path d="M19 5l2-3"/><circle cx="21" cy="2" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+    Cybervast SmartLMS
+  </div>
+
+  <div class="sidebar-search mb-6">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="global-search" class="form-input" placeholder="Search…" aria-label="Search">
+  </div>
+
+  <ul class="nav-links">
+    <li>
+      <a href="/dashboard.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="/course.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        My Courses
+      </a>
+    </li>
+    <li>
+      <a href="/planner.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Study Planner
+      </a>
+    </li>
+    <li>
+      <a href="/chat.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat Support
+      </a>
+    </li>
+    <li>
+      <a href="/achievements.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Achievements
+      </a>
+    </li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button id="theme-toggle" aria-label="Toggle theme">
+      <svg id="theme-icon-sidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      Toggle Theme
+    </button>
+    <button class="btn btn-danger w-full logout-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ═══════════════════ MOBILE HEADER ═══════════════════ -->
+<div class="mobile-header">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/><path d="M12 2c0 0 4 4 4 10"/><path d="M12 2c0 0-4 4-4 10"/><path d="M2 12h20"/></svg>
+    Cybervast SmartLMS
+  </div>
+  <div class="mobile-header-actions">
+    <button id="theme-toggle-mobile" class="btn-icon" aria-label="Toggle theme">
+      <svg id="theme-icon-mobile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="btn-icon logout-btn" aria-label="Logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+    <button class="hamburger" id="sidebar-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+      <svg id="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<main class="main-content">
+
+  <header class="top-header">
+    <div>
+      <h1 id="course-title-display">Loading Course…</h1>
+      <p id="course-desc-display" class="text-muted">Please wait while we load your course.</p>
+    </div>
+    <div class="course-actions">
+      <a href="/dashboard.html" class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <div class="course-player-grid">
+
+    <!-- LEFT: Lesson / Quiz area -->
+    <div class="lesson-content">
+
+      <!-- Lesson display card -->
+      <div id="lesson-display" class="card">
+        <!-- Placeholder state -->
+        <div class="lesson-placeholder" id="lesson-placeholder">
+          <div class="placeholder-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </div>
+          <h2>Pick a lesson to start</h2>
+          <p>Select any lesson from the course modules on the right to begin learning.</p>
+        </div>
+
+        <!-- Active lesson state (hidden until a lesson is selected) -->
+        <div id="lesson-active" style="display:none;">
+          <h2 id="lesson-title" class="mb-4"></h2>
+
+          <!-- Video -->
+          <div id="video-container" style="display:none;" class="mb-6">
+            <iframe id="lesson-video-embed" src="" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen style="display:none;"></iframe>
+            <video id="lesson-video-upload" controls style="display:none; background:#000;">
+              Your browser does not support video playback.
+            </video>
+          </div>
+
+          <div id="lesson-body" class="mb-6"></div>
+
+          <div id="lesson-actions">
+            <div class="lesson-nav-btns">
+              <button id="prev-lesson-btn" class="btn btn-outline" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Previous
+              </button>
+              <button id="next-lesson-btn" class="btn btn-outline" style="display:none;">
+                Next
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <span class="status-completed" id="lesson-status" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Completed
+              </span>
+              <button id="mark-complete-btn" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Mark Complete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz container (hidden until triggered) -->
+      <div id="quiz-container" style="display:none;">
+        <div class="card quiz-card">
+          <div class="quiz-header">
+            <h2 id="quiz-module-name">Module Assessment</h2>
+            <p id="quiz-subtitle" class="text-muted">Answer all questions to complete this module.</p>
+          </div>
+          <div class="quiz-progress-bar-wrap">
+            <div class="quiz-progress-bar" id="quiz-progress-bar" style="width:0%"></div>
+          </div>
+          <p id="quiz-q-counter" style="font-size:0.78rem;color:var(--d-text-3);margin-bottom:1.25rem;font-weight:600;"></p>
+          <p class="question-text" id="quiz-question-text"></p>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div id="quiz-feedback" class="quiz-feedback" style="display:none;"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-outline" id="quiz-back-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              Back to Lesson
+            </button>
+            <button class="btn btn-primary" id="quiz-next-btn" disabled>
+              Next Question
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Result screen (hidden) -->
+        <div class="card quiz-card" id="quiz-result-card" style="display:none;">
+          <div class="quiz-result">
+            <div class="result-score-ring" id="result-ring">
+              <span class="result-score-text" id="result-score-text">0%</span>
+            </div>
+            <h3 id="result-title">Assessment Complete!</h3>
+            <p id="result-message" class="text-muted"></p>
+            <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+              <button class="btn btn-outline" id="retry-quiz-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Retry Quiz
+              </button>
+              <button class="btn btn-primary" id="continue-after-quiz-btn">
+                Continue
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /lesson-content -->
+
+    <!-- RIGHT: Module sidebar -->
+    <div class="module-sidebar" id="module-sidebar-panel">
+      <div class="module-sidebar-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <h3>Course Modules</h3>
+      </div>
+      <div id="modules-container"></div>
+      <div class="course-progress-wrap">
+        <div class="course-progress-label">
+          <span>Your Progress</span>
+          <span id="sidebar-progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="sidebar-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /course-player-grid -->
+</main>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════ SCRIPT ═══════════════════ -->
+<script>
+/* ══════════════════════════════════════════════
+   COURSE DATA
+   Two fully-fleshed enrollable courses.
+   Each module has 3 lessons + 3-question quiz.
+══════════════════════════════════════════════ */
+const COURSE_DATA = [
+  {
+    id: 'web-dev',
+    title: 'Full-Stack Web Development',
+    description: 'Master modern HTML, CSS, JavaScript, React and Node.js to build real-world applications.',
+    category: 'Development',
+    duration: 24,
+    modules: [
+      {
+        id: 'wd-m1',
+        title: 'HTML & CSS Foundations',
+        lessons: [
+          { id: 'wd-m1-l1', title: 'Introduction to HTML', content: 'HTML (HyperText Markup Language) is the standard language for creating web pages. It describes the structure of a web page using elements represented by tags.\n\nIn this lesson you will learn:\n• The basic structure of an HTML document\n• Common HTML elements: headings, paragraphs, links, images\n• Semantic HTML5 elements: <header>, <main>, <section>, <footer>\n• How browsers parse and render HTML\n\nHTML documents begin with a <!DOCTYPE html> declaration and contain a <head> (metadata) and <body> (visible content). Every element is represented by an opening tag, optional content, and a closing tag.\n\nPractice: Try creating a simple HTML page with a heading, two paragraphs, and an image.' },
+          { id: 'wd-m1-l2', title: 'CSS Styling Basics', content: 'CSS (Cascading Style Sheets) controls the visual presentation of HTML elements. You can apply CSS inline, via a <style> tag, or in an external .css file.\n\nCore concepts covered:\n• Selectors: element, class (.name), ID (#name), attribute\n• The Box Model: margin, border, padding, content\n• Color values: named colors, hex (#fff), rgb(), hsl()\n• Typography: font-family, font-size, font-weight, line-height\n• Display modes: block, inline, inline-block, none\n\nCSS specificity determines which rules apply when multiple rules target the same element. ID selectors beat class selectors, which beat element selectors.\n\nChallenge: Style the HTML page you built in the previous lesson — give it a background color, custom fonts, and centered layout.' },
+          { id: 'wd-m1-l3', title: 'Flexbox & Grid Layout', content: 'Modern CSS layout relies on two powerful systems: Flexbox and CSS Grid.\n\nFlexbox is a one-dimensional layout model. Key properties:\n• display: flex — activates flex layout on a container\n• flex-direction: row | column — main axis\n• justify-content — alignment along main axis\n• align-items — alignment along cross axis\n• gap — spacing between items\n\nCSS Grid is a two-dimensional layout model:\n• display: grid — activates grid on a container\n• grid-template-columns — defines column tracks\n• grid-template-rows — defines row tracks\n• place-items — shorthand for align + justify\n• grid-column / grid-row — item placement\n\nBest practice: use Flexbox for single-axis (nav bars, card rows) and Grid for full-page or two-axis layouts. They can also be combined!' }
+        ],
+        quiz: [
+          { question: 'What does HTML stand for?', options: ['HyperText Markup Language','HighTech Modern Language','HyperTransfer Method Links','HyperText Modeling Layers'], answer: 0 },
+          { question: 'Which CSS property controls the space between the content and its border?', options: ['margin','gap','padding','border-spacing'], answer: 2 },
+          { question: 'Which layout system is best for two-dimensional (row AND column) layouts?', options: ['Flexbox','Float','CSS Grid','Inline-block'], answer: 2 }
+        ]
+      },
+      {
+        id: 'wd-m2',
+        title: 'JavaScript Essentials',
+        lessons: [
+          { id: 'wd-m2-l1', title: 'Variables, Types & Operators', content: 'JavaScript is the programming language of the web. It adds interactivity and logic to your HTML pages.\n\nDeclaring variables:\n• var — function-scoped (older, avoid if possible)\n• let — block-scoped, reassignable\n• const — block-scoped, cannot be reassigned\n\nPrimitive data types:\n• String: "hello", \'world\', `template ${literal}`\n• Number: 42, 3.14, NaN, Infinity\n• Boolean: true / false\n• null — intentional absence of value\n• undefined — variable declared but not assigned\n• Symbol, BigInt (advanced)\n\nOperators:\n• Arithmetic: + - * / % **\n• Comparison: === !== < > <= >=\n• Logical: && || !\n• Ternary: condition ? valueIfTrue : valueIfFalse\n\nAlways prefer === over == to avoid type coercion surprises.' },
+          { id: 'wd-m2-l2', title: 'Functions & Scope', content: 'Functions are reusable blocks of code. JavaScript supports multiple function styles:\n\nFunction declaration:\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\nFunction expression:\nconst greet = function(name) { ... };\n\nArrow function (ES6+):\nconst greet = (name) => `Hello, ${name}!`;\n\nScope determines where variables are accessible:\n• Global scope — accessible everywhere\n• Function scope — only inside the function\n• Block scope — only inside { } (let/const)\n\nClosures: a function that remembers variables from its outer scope even after the outer function has returned.\n\nHigher-order functions accept or return other functions:\n• .map() — transform each element\n• .filter() — keep matching elements\n• .reduce() — accumulate to single value' },
+          { id: 'wd-m2-l3', title: 'DOM Manipulation & Events', content: 'The DOM (Document Object Model) is a tree of all HTML elements on the page. JavaScript lets you read and modify it.\n\nSelecting elements:\n• document.getElementById("id")\n• document.querySelector(".class") — first match\n• document.querySelectorAll("tag") — all matches\n\nModifying elements:\n• el.textContent = "new text"\n• el.innerHTML = "<strong>bold</strong>"\n• el.style.color = "red"\n• el.classList.add("active")\n• el.setAttribute("href", "/page")\n\nCreating & removing elements:\n• document.createElement("div")\n• parent.appendChild(child)\n• parent.removeChild(child)\n\nEvents:\n• el.addEventListener("click", handler)\n• Common events: click, input, change, keydown, submit, DOMContentLoaded\n• event.preventDefault() — stops default browser behaviour\n• event.stopPropagation() — stops event bubbling' }
+        ],
+        quiz: [
+          { question: 'Which keyword creates a block-scoped, reassignable variable in modern JavaScript?', options: ['var','let','const','function'], answer: 1 },
+          { question: 'What does the .filter() array method return?', options: ['A single accumulated value','A new array with matching elements','The first matching element','undefined'], answer: 1 },
+          { question: 'Which method stops a form from being submitted by the browser?', options: ['event.stopPropagation()','event.cancel()','event.preventDefault()','event.haltDefault()'], answer: 2 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ui-ux',
+    title: 'UI/UX Design Fundamentals',
+    description: 'Learn design thinking, wireframing, prototyping, and visual design principles.',
+    category: 'Design',
+    duration: 18,
+    modules: [
+      {
+        id: 'ux-m1',
+        title: 'Design Thinking & Research',
+        lessons: [
+          { id: 'ux-m1-l1', title: 'What is UX Design?', content: 'UX (User Experience) Design is the process of creating products that provide meaningful, relevant experiences to users. It encompasses the entire journey of acquiring, integrating, and interacting with a product.\n\nThe 5 stages of UX Design:\n1. Empathize — understand the user\'s needs, feelings, and motivations\n2. Define — clearly articulate the problem you are solving\n3. Ideate — brainstorm a wide range of creative solutions\n4. Prototype — build a scaled-down version of your solution\n5. Test — gather feedback and iterate\n\nKey roles in a product team:\n• UX Researcher — conducts user interviews and usability studies\n• UX Designer — creates wireframes, flows, and prototypes\n• UI Designer — handles visual design, colour, and typography\n• Product Designer — often covers all three roles\n\nRemember: you are not your user. Always validate assumptions through research.' },
+          { id: 'ux-m1-l2', title: 'User Research Methods', content: 'User research ensures you build the right product for real people. There are two main research categories:\n\nQualitative (the "why"):\n• User interviews — in-depth conversations to understand motivations\n• Contextual inquiry — observing users in their natural environment\n• Focus groups — facilitated group discussions\n• Diary studies — users log their experiences over time\n\nQuantitative (the "what"):\n• Surveys — collect data from many users quickly\n• Analytics — clickstream data, heatmaps, session recordings\n• A/B testing — compare two variants to see which performs better\n• Card sorting — understand how users categorize information\n\nHow to run a user interview:\n1. Prepare open-ended questions (avoid "do you like X?")\n2. Create a comfortable, judgment-free environment\n3. Observe body language and hesitations\n4. Ask "why?" follow-up questions\n5. Synthesize findings into affinity maps and insights' },
+          { id: 'ux-m1-l3', title: 'Personas & User Journeys', content: 'Personas and journey maps are key deliverables that help teams maintain empathy throughout the design process.\n\nPersonas:\nA persona is a fictional but research-based character that represents a user segment.\n\nA good persona includes:\n• Name, photo, age, occupation, location\n• Goals — what they want to achieve\n• Pain points — frustrations and obstacles\n• Behaviours — how they interact with technology\n• A quote that captures their mindset\n\nUser Journey Maps:\nA journey map visualizes the steps a user takes to complete a goal, including their thoughts, feelings, and pain points at each stage.\n\nStages typically include:\n1. Awareness — user discovers the product\n2. Consideration — user evaluates options\n3. Acquisition — user signs up or purchases\n4. Service — user uses the product\n5. Loyalty — user returns and recommends\n\nJourney maps reveal moments of delight and frustration, pointing you toward high-impact design opportunities.' }
+        ],
+        quiz: [
+          { question: 'What are the 5 stages of the Design Thinking process (in order)?', options: ['Research, Sketch, Build, Test, Launch','Empathize, Define, Ideate, Prototype, Test','Define, Research, Prototype, Test, Ship','Brainstorm, Design, Code, Review, Deploy'], answer: 1 },
+          { question: 'Which research method helps you understand HOW users categorise information?', options: ['A/B testing','Heatmaps','Card sorting','Diary study'], answer: 2 },
+          { question: 'What is the primary purpose of a user persona?', options: ['To document technical requirements','To represent a fictional but research-based user segment','To plan project timelines','To present the product to stakeholders'], answer: 1 }
+        ]
+      },
+      {
+        id: 'ux-m2',
+        title: 'Visual Design & Prototyping',
+        lessons: [
+          { id: 'ux-m2-l1', title: 'Visual Design Principles', content: 'Strong visual design is grounded in timeless principles that guide how users perceive and navigate interfaces.\n\n1. Hierarchy — guide the eye with size, weight, and contrast. The most important element should be most prominent.\n\n2. Alignment — every element should align to an invisible grid. Misaligned elements feel sloppy and untrustworthy.\n\n3. Proximity — related items should be grouped together. Unrelated items should have more space between them.\n\n4. Repetition (Consistency) — repeating visual elements (color, shape, font) creates cohesion and helps users learn the interface.\n\n5. Contrast — differences in color, size, or shape create visual interest and draw attention.\n\n6. White Space — the space around elements is as important as the elements themselves. It creates breathing room and focus.\n\nColour theory basics:\n• Primary: Red, Blue, Yellow\n• Warm colors: energetic, urgent (CTA buttons)\n• Cool colors: calm, trustworthy (banks, healthcare)\n• 60-30-10 rule: 60% dominant, 30% secondary, 10% accent' },
+          { id: 'ux-m2-l2', title: 'Wireframing & Prototyping', content: 'Wireframes and prototypes are the designer\'s primary tools for communicating ideas and testing solutions before development begins.\n\nWireframes:\nA wireframe is a low-fidelity schematic of a page layout. It focuses on structure and functionality, not color or typography.\n\nFidelity levels:\n• Low-fidelity — rough sketches or simple boxes, used for early exploration\n• Mid-fidelity — grayscale digital wireframes with real content\n• High-fidelity — pixel-perfect mockups with color, imagery, and real text\n\nPrototypes:\nA prototype simulates real interactions. It allows stakeholders and users to experience the product before it is built.\n\nTypes:\n• Paper prototype — cut-out screens, user acts as the "computer"\n• Clickable prototype — linked screens in Figma, Adobe XD, or InVision\n• Coded prototype — HTML/CSS/JS for realistic feel\n\nPrototyping tools:\n• Figma — industry standard, collaborative, web-based\n• Adobe XD — integrated with Creative Cloud\n• Sketch (macOS only)\n• Framer — code-powered, realistic animations' },
+          { id: 'ux-m2-l3', title: 'Usability Testing', content: 'Usability testing is how you validate your designs with real users before (and after) development.\n\nTypes of usability tests:\n• Moderated — a researcher guides the participant through tasks\n• Unmoderated — participant completes tasks alone (e.g., UserTesting.com)\n• Remote — conducted over video call\n• In-person — researcher and participant in the same room\n\nHow to run a usability test:\n1. Define 3–5 key tasks based on your design goals\n2. Recruit 5 representative users (Nielsen\'s law: 5 users find 85% of usability problems)\n3. Ask participants to think aloud while completing tasks\n4. Observe silently — avoid leading participants\n5. Note where users hesitate, get confused, or make errors\n6. Debrief and synthesize findings\n\nKey usability metrics:\n• Task success rate — percentage of users who complete the task\n• Time on task — how long it takes\n• Error rate — number of mistakes made\n• Satisfaction score — post-test questionnaire (e.g., SUS scale 0–100)' }
+        ],
+        quiz: [
+          { question: 'Which visual design principle groups related elements together?', options: ['Contrast','Alignment','Proximity','Repetition'], answer: 2 },
+          { question: 'According to the 60-30-10 color rule, what percentage should the accent color occupy?', options: ['60%','30%','10%','5%'], answer: 2 },
+          { question: 'How many users does Nielsen recommend for finding 85% of usability problems?', options: ['3','5','10','20'], answer: 1 }
+        ]
+      }
+    ]
+  }
+];
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let activeCourse    = null;
+let activeLessonId  = null;
+let currentQuizMod  = null;
+let quizState       = null; // { questions, currentIdx, answers, answered }
+
+/* ══════════════════════════════════════════════
+   STORAGE HELPERS
+══════════════════════════════════════════════ */
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem('lms-progress') || '{}'); }
+  catch(e) { return {}; }
+}
+function saveProgress(p) { localStorage.setItem('lms-progress', JSON.stringify(p)); }
+
+function isLessonDone(courseId, lessonId) {
+  const p = getProgress();
+  return !!(p[courseId] && p[courseId].lessons && p[courseId].lessons[lessonId]);
+}
+function markLessonDone(courseId, lessonId) {
+  const p = getProgress();
+  if (!p[courseId]) p[courseId] = { lessons: {}, quizzes: {} };
+  if (!p[courseId].lessons) p[courseId].lessons = {};
+  p[courseId].lessons[lessonId] = true;
+  saveProgress(p);
+}
+function isQuizPassed(courseId, moduleId) {
+  const p = getProgress();
+  return !!(p[courseId] && p[courseId].quizzes && p[courseId].quizzes[moduleId]);
+}
+function markQuizPassed(courseId, moduleId, score) {
+  const p = getProgress();
+  if (!p[courseId]) p[courseId] = { lessons: {}, quizzes: {} };
+  if (!p[courseId].quizzes) p[courseId].quizzes = {};
+  p[courseId].quizzes[moduleId] = score;
+  saveProgress(p);
+}
+
+function areAllLessonsDone(courseId, moduleId) {
+  const mod = activeCourse.modules.find(m => m.id === moduleId);
+  if (!mod) return false;
+  return mod.lessons.every(l => isLessonDone(courseId, l.id));
+}
+
+function calcCourseProgress(courseId) {
+  const course = COURSE_DATA.find(c => c.id === courseId);
+  if (!course) return 0;
+  const totalLessons = course.modules.reduce((n, m) => n + m.lessons.length, 0);
+  const totalQuizzes = course.modules.length;
+  const totalItems   = totalLessons + totalQuizzes;
+  const p = getProgress();
+  let done = 0;
+  course.modules.forEach(m => {
+    m.lessons.forEach(l => { if (isLessonDone(courseId, l.id)) done++; });
+    if (isQuizPassed(courseId, m.id)) done++;
+  });
+  return totalItems > 0 ? Math.round((done / totalItems) * 100) : 0;
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+const SvgCheck  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const SvgAlert  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+const SvgInfo   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icon = type === 'success' ? SvgCheck : type === 'error' ? SvgAlert : SvgInfo;
+  t.innerHTML = icon + `<span>${msg}</span>`;
+  container.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 350); }, 3000);
+}
+
+/* ══════════════════════════════════════════════
+   RENDER MODULES SIDEBAR
+══════════════════════════════════════════════ */
+function renderModules() {
+  const container = document.getElementById('modules-container');
+  if (!activeCourse) { container.innerHTML = ''; return; }
+  const courseId = activeCourse.id;
+
+  container.innerHTML = activeCourse.modules.map((mod, idx) => {
+    const isFirst    = idx === 0;
+    const prevMod    = idx > 0 ? activeCourse.modules[idx - 1] : null;
+    const isUnlocked = isFirst || (prevMod && isQuizPassed(courseId, prevMod.id));
+    const qPassed    = isQuizPassed(courseId, mod.id);
+    const allLsnDone = areAllLessonsDone(courseId, mod.id);
+
+    const lockIcon = isUnlocked
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--d-success)"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--d-text-3)"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+
+    const lessonsHtml = mod.lessons.map(l => {
+      const done   = isLessonDone(courseId, l.id);
+      const isCur  = l.id === activeLessonId;
+      const cls    = `lesson-item${done ? ' completed' : ''}${isCur ? ' active' : ''}`;
+      const icon   = done
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`;
+      const click  = isUnlocked ? `onclick="loadLesson('${l.id}','${mod.id}')"` : `onclick="showToast('Complete the previous module quiz to unlock this section.','error')"`;
+      return `<div class="${cls}" ${click}>${icon}<span>${l.title}</span></div>`;
+    }).join('');
+
+    let quizBtnClass = 'quiz-trigger-btn';
+    let quizBtnContent = '';
+    let quizBtnClick = '';
+    if (qPassed) {
+      quizBtnClass += ' passed';
+      quizBtnContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Assessment Passed`;
+    } else if (allLsnDone && isUnlocked) {
+      quizBtnClass += ' ready';
+      quizBtnContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Take Assessment`;
+      quizBtnClick = `onclick="openQuiz('${mod.id}')"`;
+    } else {
+      quizBtnContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Complete lessons first`;
+    }
+
+    // auto-open the first module or the one containing current lesson
+    const isOpen = idx === 0 || mod.lessons.some(l => l.id === activeLessonId);
+
+    return `
+      <div class="module-item${isUnlocked ? '' : ' module-locked'}${isOpen ? ' open' : ''}" id="module-item-${mod.id}">
+        <div class="module-header" onclick="toggleModule('${mod.id}')">
+          <div class="module-header-left">
+            <div class="module-status-icon">${lockIcon}</div>
+            <span class="module-title">${mod.title}</span>
+          </div>
+          <div class="module-chevron">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="module-lessons">
+          ${lessonsHtml}
+          <button class="${quizBtnClass}" ${quizBtnClick}>${quizBtnContent}</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Update progress bar
+  const pct = calcCourseProgress(courseId);
+  document.getElementById('sidebar-progress-pct').textContent = pct + '%';
+  document.getElementById('sidebar-progress-fill').style.width = pct + '%';
+}
+
+/* ══════════════════════════════════════════════
+   TOGGLE MODULE
+══════════════════════════════════════════════ */
+function toggleModule(moduleId) {
+  const el = document.getElementById(`module-item-${moduleId}`);
+  if (!el) return;
+  el.classList.toggle('open');
+}
+
+/* ══════════════════════════════════════════════
+   LOAD LESSON
+══════════════════════════════════════════════ */
+function loadLesson(lessonId, moduleId) {
+  if (!activeCourse) return;
+  const courseId = activeCourse.id;
+  let lesson = null, modRef = null;
+
+  activeCourse.modules.forEach(m => {
+    const l = m.lessons.find(l => l.id === lessonId);
+    if (l) { lesson = l; modRef = m; }
+  });
+  if (!lesson) return;
+
+  activeLessonId = lessonId;
+
+  // Show lesson pane, hide quiz
+  document.getElementById('quiz-container').style.display = 'none';
+  document.getElementById('lesson-display').style.display = 'block';
+  document.getElementById('lesson-placeholder').style.display = 'none';
+  document.getElementById('lesson-active').style.display = 'block';
+
+  // Populate
+  document.getElementById('lesson-title').textContent = lesson.title;
+  document.getElementById('lesson-body').textContent = lesson.content;
+
+  // Video
+  const vContainer = document.getElementById('video-container');
+  const vEmbed     = document.getElementById('lesson-video-embed');
+  const vUpload    = document.getElementById('lesson-video-upload');
+  vEmbed.src = ''; vUpload.pause(); vUpload.removeAttribute('src'); vUpload.load();
+  vEmbed.style.display = 'none'; vUpload.style.display = 'none';
+
+  if (lesson.videoSource === 'upload' && lesson.videoId) {
+    vContainer.style.display = 'block';
+    vUpload.style.display = 'block';
+  } else if (lesson.videoUrl) {
+    let url = lesson.videoUrl;
+    if (url.includes('youtube.com/watch?v=')) url = url.replace('watch?v=', 'embed/');
+    else if (url.includes('youtu.be/')) url = 'https://www.youtube.com/embed/' + url.split('youtu.be/')[1];
+    vEmbed.src = url;
+    vEmbed.style.display = 'block';
+    vContainer.style.display = 'block';
+  } else {
+    vContainer.style.display = 'none';
+  }
+
+  // Completion state
+  const done    = isLessonDone(courseId, lessonId);
+  const markBtn = document.getElementById('mark-complete-btn');
+  const status  = document.getElementById('lesson-status');
+  if (done) {
+    markBtn.style.display = 'none';
+    status.style.display  = 'inline-flex';
+  } else {
+    markBtn.style.display = 'inline-flex';
+    status.style.display  = 'none';
+  }
+
+  // Prev / Next navigation
+  const allLessons = activeCourse.modules.flatMap(m => m.lessons);
+  const curIdx     = allLessons.findIndex(l => l.id === lessonId);
+  const prevBtn    = document.getElementById('prev-lesson-btn');
+  const nextBtn    = document.getElementById('next-lesson-btn');
+
+  prevBtn.style.display = curIdx > 0 ? 'inline-flex' : 'none';
+  nextBtn.style.display = curIdx < allLessons.length - 1 ? 'inline-flex' : 'none';
+
+  prevBtn.onclick = () => { const prev = allLessons[curIdx - 1]; if (prev) loadLesson(prev.id); };
+  nextBtn.onclick = () => { const next = allLessons[curIdx + 1]; if (next) loadLesson(next.id); };
+
+  // Mark complete handler
+  markBtn.onclick = () => {
+    markLessonDone(courseId, lessonId);
+    showToast('Lesson completed! Great work.', 'success');
+    loadLesson(lessonId);
+    renderModules();
+  };
+
+  renderModules();
+
+  // Close sidebar on mobile after selecting a lesson
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+/* ══════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════ */
+function openQuiz(moduleId) {
+  if (!activeCourse) return;
+  const mod = activeCourse.modules.find(m => m.id === moduleId);
+  if (!mod) return;
+
+  if (!areAllLessonsDone(activeCourse.id, moduleId)) {
+    showToast('Complete all lessons in this module first!', 'error');
+    return;
+  }
+
+  currentQuizMod = mod;
+  quizState = {
+    questions: mod.quiz,
+    currentIdx: 0,
+    correctCount: 0,
+    answered: false
+  };
+
+  document.getElementById('lesson-display').style.display = 'none';
+  document.getElementById('quiz-container').style.display = 'block';
+  document.getElementById('quiz-result-card').style.display = 'none';
+  document.querySelector('.quiz-card:not(#quiz-result-card)').style.display = 'block';
+
+  document.getElementById('quiz-module-name').textContent = mod.title + ' — Assessment';
+  renderQuizQuestion();
+
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+function renderQuizQuestion() {
+  const { questions, currentIdx } = quizState;
+  const q    = questions[currentIdx];
+  const pct  = Math.round(((currentIdx) / questions.length) * 100);
+  const LETTERS = ['A','B','C','D'];
+
+  document.getElementById('quiz-progress-bar').style.width = pct + '%';
+  document.getElementById('quiz-q-counter').textContent = `Question ${currentIdx + 1} of ${questions.length}`;
+  document.getElementById('quiz-question-text').textContent = q.question;
+  document.getElementById('quiz-feedback').style.display = 'none';
+
+  const optContainer = document.getElementById('quiz-options');
+  optContainer.innerHTML = q.options.map((opt, i) => `
+    <button class="quiz-option" data-idx="${i}" onclick="selectAnswer(${i})">
+      <span class="option-letter">${LETTERS[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  const nextBtn = document.getElementById('quiz-next-btn');
+  nextBtn.disabled = true;
+  quizState.answered = false;
+  nextBtn.textContent = currentIdx < questions.length - 1 ? 'Next Question' : 'See Results';
+  // Replace innerHTML carefully (button has SVG child)
+  if (currentIdx < questions.length - 1) {
+    nextBtn.innerHTML = `Next Question <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><polyline points="9 18 15 12 9 6"/></svg>`;
+  } else {
+    nextBtn.innerHTML = `See Results <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><polyline points="20 6 9 17 4 12"/></svg>`;
+  }
+}
+
+function selectAnswer(selectedIdx) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+
+  const { questions, currentIdx } = quizState;
+  const q       = questions[currentIdx];
+  const correct = q.answer;
+  const isRight = selectedIdx === correct;
+  if (isRight) quizState.correctCount = (quizState.correctCount || 0) + 1;
+
+  // Style options
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct)   btn.classList.add('correct');
+    if (i === selectedIdx && !isRight) btn.classList.add('incorrect');
+  });
+
+  // Feedback
+  const fb = document.getElementById('quiz-feedback');
+  fb.style.display = 'flex';
+  if (isRight) {
+    fb.className = 'quiz-feedback correct-fb';
+    fb.innerHTML = `${SvgCheck} <strong>Correct!</strong> Great job.`;
+  } else {
+    fb.className = 'quiz-feedback incorrect-fb';
+    fb.innerHTML = `${SvgAlert} <strong>Not quite.</strong> The correct answer is: <strong>${q.options[correct]}</strong>`;
+  }
+
+  document.getElementById('quiz-next-btn').disabled = false;
+}
+
+function showQuizResult() {
+  const { questions, correctCount } = quizState;
+  const total   = questions.length;
+  const score   = Math.round((correctCount / total) * 100);
+  const passed  = score >= 60;
+
+  document.querySelector('.quiz-card:not(#quiz-result-card)').style.display = 'none';
+  document.getElementById('quiz-result-card').style.display = 'block';
+
+  // Animate ring
+  const ring = document.getElementById('result-ring');
+  ring.style.background = `conic-gradient(${passed ? 'var(--d-primary)' : 'var(--d-danger)'} ${score * 3.6}deg, var(--d-surface-2) 0deg)`;
+  document.getElementById('result-score-text').textContent = score + '%';
+  document.getElementById('result-score-text').style.color = passed ? 'var(--d-primary)' : 'var(--d-danger)';
+
+  if (passed) {
+    document.getElementById('result-title').textContent = '🎉 Assessment Passed!';
+    document.getElementById('result-message').textContent = `You scored ${correctCount}/${total}. Module unlocked — keep going!`;
+    markQuizPassed(activeCourse.id, currentQuizMod.id, score);
+    showToast('Module completed! Next module unlocked.', 'success');
+    renderModules();
+  } else {
+    document.getElementById('result-title').textContent = 'Almost There!';
+    document.getElementById('result-message').textContent = `You scored ${correctCount}/${total} (${score}%). You need 60% to pass. Try again!`;
+    showToast('Score too low. Review the lessons and try again.', 'error');
+  }
+}
+
+document.getElementById('quiz-next-btn').addEventListener('click', () => {
+  quizState.currentIdx++;
+  if (quizState.currentIdx >= quizState.questions.length) {
+    showQuizResult();
+  } else {
+    renderQuizQuestion();
+  }
+});
+
+document.getElementById('quiz-back-btn').addEventListener('click', () => {
+  document.getElementById('quiz-container').style.display = 'none';
+  document.getElementById('lesson-display').style.display = 'block';
+});
+
+document.getElementById('retry-quiz-btn').addEventListener('click', () => {
+  quizState.currentIdx   = 0;
+  quizState.correctCount = 0;
+  document.getElementById('quiz-result-card').style.display = 'none';
+  document.querySelector('.quiz-card:not(#quiz-result-card)').style.display = 'block';
+  renderQuizQuestion();
+});
+
+document.getElementById('continue-after-quiz-btn').addEventListener('click', () => {
+  document.getElementById('quiz-container').style.display = 'none';
+  document.getElementById('lesson-display').style.display = 'block';
+  document.getElementById('lesson-placeholder').style.display = 'flex';
+  document.getElementById('lesson-active').style.display = 'none';
+  activeLessonId = null;
+  renderModules();
+});
+
+/* ══════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════ */
+const SUN_SVG  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON_SVG = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+function getTheme() { return localStorage.getItem('cv-theme') || 'light'; }
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('cv-theme', t);
+  const isDark = t === 'dark';
+  const si = document.getElementById('theme-icon-sidebar');
+  const mi = document.getElementById('theme-icon-mobile');
+  if (si) si.innerHTML = isDark ? SUN_SVG : MOON_SVG;
+  if (mi) mi.innerHTML = isDark ? SUN_SVG : MOON_SVG;
+}
+function toggleTheme() { applyTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+/* ══════════════════════════════════════════════
+   SIDEBAR (mobile)
+══════════════════════════════════════════════ */
+const sidebar    = document.getElementById('sidebar');
+const overlay    = document.getElementById('sidebar-overlay');
+const toggleBtn  = document.getElementById('sidebar-toggle');
+const hamIcon    = document.getElementById('hamburger-icon');
+let sidebarOpen  = false;
+const MENU_LINES = `<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>`;
+const CLOSE_X    = `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
+
+function openSidebar() {
+  sidebarOpen = true;
+  sidebar.classList.add('open'); overlay.classList.add('open');
+  toggleBtn.classList.add('open'); toggleBtn.setAttribute('aria-expanded','true');
+  if (hamIcon) hamIcon.innerHTML = CLOSE_X;
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  sidebarOpen = false;
+  sidebar.classList.remove('open'); overlay.classList.remove('open');
+  toggleBtn.classList.remove('open'); toggleBtn.setAttribute('aria-expanded','false');
+  if (hamIcon) hamIcon.innerHTML = MENU_LINES;
+  document.body.style.overflow = '';
+}
+toggleBtn?.addEventListener('click', () => sidebarOpen ? closeSidebar() : openSidebar());
+overlay?.addEventListener('click', closeSidebar);
+sidebar?.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', closeSidebar));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sidebarOpen) closeSidebar(); });
+
+/* ══════════════════════════════════════════════
+   LOGOUT
+══════════════════════════════════════════════ */
+document.querySelectorAll('.logout-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    localStorage.removeItem('lms-session');
+    window.location.href = '/dashboard.html';
+  });
+});
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  applyTheme(getTheme());
+
+  // Pick course from localStorage (set by dashboard enroll button)
+  const savedId = localStorage.getItem('lms-active-course');
+  activeCourse  = COURSE_DATA.find(c => c.id === savedId) || COURSE_DATA[0];
+
+  document.getElementById('course-title-display').textContent = activeCourse.title;
+  document.getElementById('course-desc-display').textContent  = activeCourse.description;
+
+  renderModules();
+
+  // Restore session user name if available
+  try {
+    const sess = JSON.parse(localStorage.getItem('lms-session') || '{}');
+    if (sess.name) { /* could show in header if desired */ }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>

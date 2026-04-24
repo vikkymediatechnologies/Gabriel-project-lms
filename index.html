@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybervast SmartLMS — Master New Skills</title>
+
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/main.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('cv-theme') || 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="top-header landing-nav" role="navigation" aria-label="Main navigation">
+    <div class="logo">
+      <span aria-hidden="true">🚀</span> Cybervast SmartLMS
+    </div>
+    <div class="nav-actions" id="nav-actions">
+      <a href="/auth.html" class="btn btn-outline">Login / Register</a>
+      <button class="btn btn-ghost theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile backdrop -->
+  <div class="mobile-menu-overlay" id="menu-overlay" aria-hidden="true"></div>
+
+  <!-- Mobile drawer -->
+  <div class="mobile-menu" id="mobile-menu" role="menu" aria-hidden="true">
+    <!-- Populated by JS -->
+  </div>
+
+
+  <!-- HERO -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">✦ Smart Learning Platform</div>
+      <h1>Master New Skills,<br>Faster Than Ever</h1>
+      <p>Join thousands of learners on a platform built for real progress — with AI-powered planning, live tracking, and verified certificates.</p>
+      <div class="hero-actions">
+        <a href="/auth.html" class="btn btn-primary">Get Started Free</a>
+        <a href="#courses" class="btn btn-outline">Browse Courses</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-value">12K+</div>
+          <div class="hero-stat-label">Learners</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">48</div>
+          <div class="hero-stat-label">Courses</div>
+        </div>
+        <div>
+          <div class="hero-stat-value">95%</div>
+          <div class="hero-stat-label">Completion Rate</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- SEARCH & FILTER -->
+  <section class="search-filter-section container">
+    <div class="card">
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" id="landing-search" class="form-input" placeholder="Search courses…" aria-label="Search courses">
+      </div>
+      <div class="category-wrap">
+        <select id="landing-category" class="form-input" aria-label="Filter by category">
+          <option value="all">All Categories</option>
+          <option value="Development">Development</option>
+          <option value="Design">Design</option>
+          <option value="Data Science">Data Science</option>
+          <option value="IT &amp; Security">IT &amp; Security</option>
+          <option value="Business">Business</option>
+          <option value="Marketing">Marketing</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- AVAILABLE COURSES -->
+  <section class="available-courses container" id="courses">
+    <div class="section-heading">
+      <h2>Available Courses</h2>
+      <span class="section-count" id="available-count">0 courses</span>
+    </div>
+    <div id="available-grid" class="course-grid" role="list"></div>
+  </section>
+
+
+  <!-- COMING SOON -->
+  <section class="coming-soon-courses container">
+    <div class="section-heading">
+      <h2 style="color:var(--text-2);">Coming Soon</h2>
+      <span class="section-count muted" id="soon-count">0 courses</span>
+    </div>
+    <div id="coming-soon-grid" class="course-grid" role="list"></div>
+  </section>
+
+
+  <!-- FEATURES -->
+  <section class="features container">
+    <h2>Why Choose Cybervast SmartLMS?</h2>
+    <div class="course-grid">
+      <div class="card">
+        <div class="feature-icon" aria-hidden="true">📊</div>
+        <h3>Progress Tracking</h3>
+        <p class="text-muted">Monitor your learning journey with real-time progress bars and module completion status.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" aria-hidden="true">📅</div>
+        <h3>Study Planner</h3>
+        <p class="text-muted">Plan your schedule and get realistic completion estimates tailored to your availability.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" aria-hidden="true">🎓</div>
+        <h3>Verified Certificates</h3>
+        <p class="text-muted">Earn industry-recognized certificates upon 100% course completion.</p>
+      </div>
+      <div class="card">
+        <div class="feature-icon" aria-hidden="true">🤖</div>
+        <h3>AI-Powered Insights</h3>
+        <p class="text-muted">Get personalized recommendations and learning paths powered by intelligent algorithms.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- MODAL -->
+  <div id="course-details-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <div id="modal-banner">
+        <button class="modal-close-btn" id="modal-close-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body-inner">
+        <div class="modal-meta-row">
+          <span id="modal-category" class="badge badge-primary">Category</span>
+          <span id="modal-duration" class="modal-duration-text">0 Hours</span>
+        </div>
+        <h2 id="modal-title">Course Title</h2>
+        <p id="modal-desc" class="text-muted mb-8" style="font-size:1.05rem;line-height:1.7;"></p>
+        <div class="modal-skills-label">Skills You Will Gain</div>
+        <div id="modal-skills" class="mb-8"></div>
+        <div class="modal-footer-row">
+          <div class="modal-stats">
+            <div class="modal-stat">
+              <div id="modal-modules-count" class="modal-stat-value">0</div>
+              <div class="modal-stat-label">Modules</div>
+            </div>
+            <div class="modal-stat-divider"></div>
+            <div class="modal-stat">
+              <div id="modal-lessons-count" class="modal-stat-value">0</div>
+              <div class="modal-stat-label">Lessons</div>
+            </div>
+          </div>
+          <a id="modal-enroll-btn" href="/auth.html" class="btn btn-primary">Enroll Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="mb-4"><a href="/auth.html">Learner Portal</a></div>
+      <p>&copy; 2026 Cybervast SmartLMS. All rights reserved.</p>
+    </div>
+  </footer>
+
+
+  <!-- SCRIPTS -->
+  <script src="/js/app.js"></script>
+  <script src="/js/progress.js"></script>
+  <script>
+
+  /* ── XSS HELPER ─────────────────────────────── */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])
+    );
+  }
+
+  /* ── THEME ───────────────────────────────────── */
+  function getTheme() { return localStorage.getItem('cv-theme') || 'light'; }
+
+  function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    localStorage.setItem('cv-theme', t);
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      btn.textContent = t === 'dark' ? '☀️' : '🌙';
+      btn.title = t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    });
+  }
+
+  function toggleTheme() { applyTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+
+  // Delegate: works for all .theme-toggle-btn, even future ones injected by buildNav()
+  document.addEventListener('click', e => {
+    if (e.target.closest('.theme-toggle-btn')) toggleTheme();
+  });
+
+  /* ── HAMBURGER / MOBILE MENU ─────────────────── */
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobile-menu');
+  const menuOverlay = document.getElementById('menu-overlay');
+  let menuOpen = false;
+
+  function openMenu() {
+    menuOpen = true;
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    mobileMenu.classList.add('open');
+    mobileMenu.setAttribute('aria-hidden', 'false');
+    menuOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu() {
+    menuOpen = false;
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileMenu.classList.remove('open');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+    menuOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () => menuOpen ? closeMenu() : openMenu());
+  menuOverlay.addEventListener('click', closeMenu);
+
+  // Close menu on anchor click inside drawer
+  mobileMenu.addEventListener('click', e => { if (e.target.tagName === 'A') closeMenu(); });
+
+  /* ── BUILD NAV (auth-aware) ──────────────────── */
+  function buildNav() {
+    let session = null;
+    try { const r = localStorage.getItem('lms-session'); if (r) session = JSON.parse(r); } catch(e) {}
+    const loggedIn = session && session.name;
+
+    // Desktop
+    const navActions = document.getElementById('nav-actions');
+    navActions.innerHTML = loggedIn ? `
+      <span class="nav-user-name">Welcome, <strong>${esc(session.name)}</strong></span>
+      <a href="/dashboard.html" class="btn btn-primary">Dashboard</a>
+      <button class="btn btn-ghost theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+      <button class="btn btn-danger" id="logout-desk">Logout</button>
+    ` : `
+      <a href="/auth.html" class="btn btn-outline">Login / Register</a>
+      <button class="btn btn-ghost theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+    `;
+
+    // Mobile drawer
+    mobileMenu.innerHTML = loggedIn ? `
+      <span class="nav-user-name" style="text-align:center;padding:0.25rem 0;">
+        Welcome, <strong>${esc(session.name)}</strong>
+      </span>
+      <div class="mobile-menu-divider"></div>
+      <a href="/dashboard.html" class="btn btn-primary">Dashboard</a>
+      <button class="btn btn-ghost theme-toggle-btn" style="justify-content:center;" aria-label="Toggle theme">🌙</button>
+      <button class="btn btn-danger" id="logout-mob" style="justify-content:center;">Logout</button>
+    ` : `
+      <a href="/auth.html" class="btn btn-outline">Login / Register</a>
+      <div class="mobile-menu-divider"></div>
+      <button class="btn btn-ghost theme-toggle-btn" style="justify-content:center;" aria-label="Toggle theme">🌙</button>
+    `;
+
+    // Logout handlers
+    function doLogout() { localStorage.removeItem('lms-session'); location.reload(); }
+    document.getElementById('logout-desk')?.addEventListener('click', doLogout);
+    document.getElementById('logout-mob')?.addEventListener('click', doLogout);
+
+    // Sync theme icon
+    applyTheme(getTheme());
+  }
+
+  /* ── COURSE DATA ──────────────────────────────── */
+  function getSafeCourses() {
+    if (typeof getCourses === 'function') return getCourses();
+    return [
+      { id:'webdev-101', title:'Full-Stack Web Development', category:'Development', status:'published', duration:40,
+        description:'Build modern, scalable web applications from scratch using HTML, CSS, JavaScript, Node.js, and React.',
+        image:'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80',
+        skills:['HTML & CSS','JavaScript','React','Node.js','REST APIs'],
+        modules:[{name:'HTML',lessons:[{},{},{},{}]},{name:'JS',lessons:[{},{},{}]},{name:'React',lessons:[{},{},{},{}]},{name:'Node',lessons:[{},{}]}] },
+      { id:'ux-design', title:'UX/UI Design Mastery', category:'Design', status:'published', duration:28,
+        description:'Master the principles of user experience and interface design with hands-on Figma projects.',
+        image:'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=600&q=80',
+        skills:['Figma','User Research','Prototyping','Design Systems'],
+        modules:[{name:'Design Thinking',lessons:[{},{},{}]},{name:'Wireframing',lessons:[{},{},{}]},{name:'Visual',lessons:[{},{}]}] },
+      { id:'data-science', title:'Data Science & Machine Learning', category:'Data Science', status:'published', duration:52,
+        description:'From Python basics to deep learning — master the full data science pipeline including EDA, modeling, and deployment.',
+        image:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80',
+        skills:['Python','Pandas','Scikit-learn','TensorFlow'],
+        modules:[{name:'Python',lessons:[{},{},{},{}]},{name:'ML',lessons:[{},{},{},{}]},{name:'Deep Learning',lessons:[{},{}]}] },
+      { id:'cybersecurity', title:'Cybersecurity Fundamentals', category:'IT & Security', status:'published', duration:35,
+        description:'Understand the threat landscape, penetration testing basics, and network defense skills.',
+        image:'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&q=80',
+        skills:['Network Security','Ethical Hacking','SIEM','Incident Response'],
+        modules:[{name:'Fundamentals',lessons:[{},{},{}]},{name:'Network',lessons:[{},{}]}] },
+      { id:'digital-marketing', title:'Digital Marketing Strategy', category:'Marketing', status:'published', duration:22,
+        description:'Run data-driven campaigns across SEO, paid ads, social media, and email marketing.',
+        image:'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
+        skills:['SEO','Google Ads','Social Media','Analytics'],
+        modules:[{name:'SEO',lessons:[{},{},{}]},{name:'Ads',lessons:[{},{}]}] },
+      { id:'cloud-aws', title:'Cloud Architecture with AWS', category:'IT & Security', status:'coming-soon', duration:45,
+        description:'Design and deploy scalable cloud infrastructure on AWS — from EC2 and S3 to serverless.',
+        image:'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80',
+        skills:['AWS','Terraform','Docker','Kubernetes'], modules:[] },
+      { id:'product-mgmt', title:'Product Management Essentials', category:'Business', status:'coming-soon', duration:18,
+        description:'Go from idea to shipped product — roadmap planning, stakeholder management, and agile methods.',
+        image:'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&q=80',
+        skills:['Product Roadmap','Agile','User Stories','OKRs'], modules:[] },
+    ];
+  }
+
+  /* ── COURSE CARD ─────────────────────────────── */
+  function countLessons(c) { return (c.modules||[]).reduce((t,m)=>t+(m.lessons||[]).length,0); }
+
+  function createCard(course) {
+    const isSoon = course.status === 'coming-soon' || !course.modules.length;
+    return `
+      <article class="card course-card" role="listitem" tabindex="0"
+        aria-label="View ${esc(course.title)}"
+        onclick="showCourseDetails('${esc(course.id)}')"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showCourseDetails('${esc(course.id)}');}">
+        <div class="card-img-wrap">
+          <img src="${esc(course.image)}" alt="${esc(course.title)}" referrerpolicy="no-referrer" loading="lazy">
+          <span class="card-category-badge">${esc(course.category||'General')}</span>
+          ${isSoon ? '<span class="card-soon-badge">Coming Soon</span>' : ''}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">${esc(course.title)}</h3>
+          <p class="card-desc">${esc(course.description)}</p>
+          <div class="card-meta">
+            <span class="card-meta-info">${course.duration}h · ${course.modules.length} module${course.modules.length!==1?'s':''}</span>
+            <button class="btn btn-primary" onclick="event.stopPropagation();showCourseDetails('${esc(course.id)}')">Learn More</button>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  /* ── RENDER COURSES ──────────────────────────── */
+  function renderLandingCourses(q='', cat='all') {
+    const aGrid = document.getElementById('available-grid');
+    const sGrid = document.getElementById('coming-soon-grid');
+    if (!aGrid || !sGrid) return;
+
+    const query = q.toLowerCase().trim();
+    const all = getSafeCourses().filter(c => {
+      const catOk  = cat === 'all' || c.category === cat;
+      const textOk = !query || c.title.toLowerCase().includes(query) ||
+        c.description.toLowerCase().includes(query) || (c.category||'').toLowerCase().includes(query);
+      return catOk && textOk;
+    });
+
+    const available = all.filter(c => c.status === 'published' && c.modules.length > 0);
+    const comingSoon = all.filter(c => c.status === 'coming-soon' || !c.modules.length);
+
+    aGrid.innerHTML = available.length ? available.map(createCard).join('') : '<p class="empty-state">No courses match your search.</p>';
+    sGrid.innerHTML = comingSoon.length ? comingSoon.map(createCard).join('') : '<p class="empty-state">No upcoming courses found.</p>';
+
+    const ac = document.getElementById('available-count');
+    const sc = document.getElementById('soon-count');
+    if (ac) ac.textContent = `${available.length} course${available.length!==1?'s':''}`;
+    if (sc) sc.textContent = `${comingSoon.length} course${comingSoon.length!==1?'s':''}`;
+  }
+
+  /* ── MODAL ───────────────────────────────────── */
+  function showCourseDetails(id) {
+    const course = getSafeCourses().find(c => c.id === id);
+    if (!course) return;
+
+    document.getElementById('modal-banner').style.backgroundImage = `url(${course.image})`;
+    document.getElementById('modal-title').textContent    = course.title;
+    document.getElementById('modal-desc').textContent     = course.description;
+    document.getElementById('modal-category').textContent = course.category || 'General';
+    document.getElementById('modal-duration').textContent = `${course.duration} Hours of Study`;
+    document.getElementById('modal-modules-count').textContent = course.modules.length;
+    document.getElementById('modal-lessons-count').textContent = countLessons(course);
+
+    const skills = course.skills?.length ? course.skills : ['Core Concepts','Practical Projects','Industry Standards'];
+    document.getElementById('modal-skills').innerHTML = skills.map(s => `<span class="badge">${esc(s)}</span>`).join('');
+
+    const btn = document.getElementById('modal-enroll-btn');
+    try {
+      const sess = JSON.parse(localStorage.getItem('lms-session'));
+      if (sess?.name) { btn.href = '/dashboard.html'; btn.textContent = 'Go to Dashboard'; }
+      else            { btn.href = '/auth.html';       btn.textContent = 'Enroll Now'; }
+    } catch(e)        { btn.href = '/auth.html';       btn.textContent = 'Enroll Now'; }
+
+    document.getElementById('course-details-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    const m = document.getElementById('course-details-modal');
+    if (m) m.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  function closeDetailsModal() { closeModal(); } // backward compat
+
+  /* ── INIT ────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    buildNav();
+    renderLandingCourses();
+
+    const searchEl = document.getElementById('landing-search');
+    const catEl    = document.getElementById('landing-category');
+    searchEl?.addEventListener('input',  () => renderLandingCourses(searchEl.value, catEl.value));
+    catEl?.addEventListener('change',    () => renderLandingCourses(searchEl.value, catEl.value));
+
+    document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+    document.getElementById('course-details-modal')?.addEventListener('click', e => {
+      if (e.target === document.getElementById('course-details-modal')) closeModal();
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (menuOpen) closeMenu(); else closeModal(); }
+  });
+
+  </script>
+</body>
+</html>

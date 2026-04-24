@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CybervastSmart LMS - Editor Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span>✍️</span>Cybervast SmartLMS Editor
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="/editor-dashboard.html" class="nav-link active">🛠️ My Courses</a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard.html" class="nav-link">🏠 Learner View</a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="btn btn-outline w-full mb-2">☀️ Toggle Theme</button>
+            <button class="btn btn-danger w-full logout-btn">🚪 Logout</button>
+        </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="logo" style="margin-bottom: 0;">
+            <span>✍️</span>Cybervast SmartLMS Editor
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="theme-toggle-mobile" class="btn btn-outline" style="padding: 0.5rem; border: none;">☀️</button>
+            <button class="btn btn-outline logout-btn" style="padding: 0.5rem; border: none;">🚪</button>
+            <button id="sidebar-toggle" class="hamburger">☰</button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1 style="font-size: 2rem; font-weight: 700;">Editor Dashboard</h1>
+                <p class="text-muted">Create and manage your course submissions.</p>
+            </div>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 1rem;">
+                <span class="user-name-display font-bold">Editor</span>
+                <div class="avatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: #10b981; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                    ED
+                </div>
+            </div>
+        </header>
+
+        <!-- Add Course Form -->
+        <section class="admin-actions mb-12">
+            <div class="grid grid-cols-2 gap-8">
+                <!-- Form Side -->
+                <div class="card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span style="font-size: 1.5rem;">✨</span>
+                        <h2 style="margin: 0;">New Course Proposal</h2>
+                    </div>
+                    <form id="add-course-form" class="grid grid-cols-2 gap-4">
+                        <div class="form-group col-span-2">
+                            <label for="course-title" class="small-caps mb-1 block">Course Title</label>
+                            <input type="text" id="course-title" class="form-input" placeholder="e.g., Advanced React Patterns" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-duration" class="small-caps mb-1 block">Duration (Hours)</label>
+                            <input type="number" id="course-duration" class="form-input" placeholder="e.g., 40" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-category" class="small-caps mb-1 block">Category</label>
+                            <select id="course-category" class="form-input">
+                                <option value="Development">Development</option>
+                                <option value="Design">Design</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="IT & Security">IT & Security</option>
+                                <option value="Business">Business</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-status-display" class="small-caps mb-1 block">Initial Status</label>
+                            <input type="text" class="form-input" value="⏳ Pending Review" disabled>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-image-source" class="small-caps mb-1 block">Cover Image Source</label>
+                            <div class="flex gap-2 mb-2">
+                                <button type="button" id="img-source-url" class="btn btn-primary btn-sm" onclick="setCourseImageSource('url')" style="background-color: #10b981; border-color: #10b981; color: white;">URL</button>
+                                <button type="button" id="img-source-upload" class="btn btn-outline btn-sm" onclick="setCourseImageSource('upload')">Upload</button>
+                            </div>
+                            <input type="url" id="course-image" class="form-input" placeholder="https://picsum.photos/seed/..." required>
+                            <div id="course-image-upload-container" style="display: none;">
+                                <input type="file" id="course-image-file" class="form-input" accept="image/*">
+                                <input type="hidden" id="course-image-id">
+                            </div>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-desc" class="small-caps mb-1 block">Short Description</label>
+                            <textarea id="course-desc" class="form-input" rows="2" placeholder="Briefly describe the course..." required></textarea>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-skills" class="small-caps mb-1 block">Skills Gained (comma-separated)</label>
+                            <textarea id="course-skills" class="form-input" rows="2" placeholder="e.g., React, TypeScript, State Management"></textarea>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-modules-count" class="small-caps mb-1 block">Initial Modules Count</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="course-modules-count" min="1" max="12" value="1" class="w-full" style="accent-color: #10b981;">
+                                <span id="modules-count-display" class="font-bold" style="min-width: 2rem;">1</span>
+                            </div>
+                        </div>
+                        <div class="col-span-2 mt-4">
+                            <button type="submit" class="btn w-full py-4 text-lg" style="background-color: #10b981; color: white;">🚀 Submit for Review</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Preview Side -->
+                <div class="preview-container">
+                    <div class="sticky-top" style="top: 2rem;">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="small-caps">Live Preview</span>
+                            <span class="badge" style="background-color: #10b981; color: white;">Card View</span>
+                        </div>
+                        <div id="course-preview-card" class="card course-card" style="margin: 0; transform: scale(1.05); transform-origin: top left;">
+                            <img id="preview-img" src="https://picsum.photos/seed/preview/400/200" alt="Preview" referrerPolicy="no-referrer">
+                            <h3 id="preview-title" class="mb-2">Course Title Preview</h3>
+                            <p id="preview-desc" class="text-muted mb-4" style="font-size: 0.875rem;">Your course description will appear here as you type...</p>
+                            <div class="flex justify-between items-center">
+                                <span id="preview-meta" class="text-muted" style="font-size: 0.75rem;">0 Hours • 0 Modules</span>
+                                <button class="btn" style="background-color: #10b981; color: white;" disabled>Enroll</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Submissions -->
+        <section class="manage-courses">
+            <h2 class="mb-6">My Course Submissions</h2>
+            <div id="editor-course-list" class="grid grid-cols-3 gap-6">
+                <!-- Courses will be listed here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Edit Course Modal -->
+    <div id="edit-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="edit-modal-title">Edit Submission</h2>
+                <button onclick="closeEditModal()" class="btn btn-outline">✕</button>
+            </div>
+            
+            <div class="tabs mb-6">
+                <button class="tab-btn active" onclick="switchTab('basic')">Basic Info</button>
+                <button class="tab-btn" onclick="switchTab('modules')">Curriculum</button>
+                <button class="tab-btn" id="quiz-tab-btn" style="display: none;" onclick="switchTab('quiz')">Quiz Editor</button>
+            </div>
+
+            <div id="tab-basic" class="tab-content">
+                <form id="edit-course-form" class="grid grid-cols-2 gap-6">
+                    <input type="hidden" id="edit-course-id">
+                    <div class="form-group col-span-2">
+                        <label>Course Title</label>
+                        <input type="text" id="edit-title" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (Hours)</label>
+                        <input type="number" id="edit-duration" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="edit-category" class="form-input">
+                            <option value="Development">Development</option>
+                            <option value="Design">Design</option>
+                            <option value="Data Science">Data Science</option>
+                            <option value="IT & Security">IT & Security</option>
+                            <option value="Business">Business</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover Image Source</label>
+                        <div class="flex gap-2 mb-2">
+                            <button type="button" id="edit-img-source-url" class="btn btn-primary btn-sm" onclick="setEditImageSource('url')" style="background-color: #10b981; border-color: #10b981; color: white;">URL</button>
+                            <button type="button" id="edit-img-source-upload" class="btn btn-outline btn-sm" onclick="setEditImageSource('upload')">Upload</button>
+                        </div>
+                        <input type="url" id="edit-image" class="form-input" required>
+                        <div id="edit-image-upload-container" style="display: none;">
+                            <input type="file" id="edit-image-file" class="form-input" accept="image/*">
+                            <input type="hidden" id="edit-image-id">
+                        </div>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label>Description</label>
+                        <textarea id="edit-desc" class="form-input" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label>Skills Gained (comma-separated)</label>
+                        <textarea id="edit-skills" class="form-input" rows="2" placeholder="e.g., React, TypeScript, State Management"></textarea>
+                    </div>
+                    <div class="col-span-2">
+                        <button type="submit" class="btn w-full" style="background-color: #10b981; color: white;">Update Submission</button>
+                        <p class="text-muted mt-2 text-center" style="font-size: 0.8rem;">Note: Updating will reset status to "Pending Review"</p>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tab-modules" class="tab-content" style="display: none;">
+                <div class="flex justify-between items-center mb-4">
+                    <h3>Course Modules</h3>
+                    <button onclick="addNewModule()" class="btn btn-outline btn-sm">Add Module</button>
+                </div>
+                <div id="edit-modules-list" class="grid gap-4">
+                    <!-- Modules will be listed here -->
+                </div>
+            </div>
+
+            <div id="tab-quiz" class="tab-content" style="display: none;">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="quiz-editor-title">Module Quiz</h3>
+                    <button onclick="addNewQuestion()" class="btn btn-outline btn-sm">+ Add Question</button>
+                </div>
+                <div id="quiz-questions-list" class="grid gap-6">
+                    <!-- Questions will be listed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 id="confirm-title" class="mb-4">Are you sure?</h3>
+            <p id="confirm-message" class="text-muted mb-6">This action cannot be undone.</p>
+            <div class="flex gap-4">
+                <button id="confirm-cancel" class="btn btn-outline w-full">Cancel</button>
+                <button id="confirm-ok" class="btn btn-danger w-full">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/progress.js"></script>
+    <script>
+        let editingCourseId = null;
+        let editingModuleIdx = null;
+        let refreshCoursePreview = async () => {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEditorCourses();
+            
+            const addForm = document.getElementById('add-course-form');
+            const modulesCountInput = document.getElementById('course-modules-count');
+            const modulesCountDisplay = document.getElementById('modules-count-display');
+            
+            const previewTitle = document.getElementById('preview-title');
+            const previewDesc = document.getElementById('preview-desc');
+            const previewImg = document.getElementById('preview-img');
+            const previewMeta = document.getElementById('preview-meta');
+            
+            refreshCoursePreview = async () => {
+                const title = document.getElementById('course-title').value || 'Course Title Preview';
+                const desc = document.getElementById('course-desc').value || 'Your course description will appear here as you type...';
+                const duration = document.getElementById('course-duration').value || '0';
+                const category = document.getElementById('course-category').value || 'Development';
+                const modules = modulesCountInput ? modulesCountInput.value : '0';
+                
+                let img = document.getElementById('course-image').value || 'https://picsum.photos/seed/preview/400/200';
+                const imageId = document.getElementById('course-image-id').value;
+                if (imageId) {
+                    const blob = await getAssetBlob(imageId);
+                    if (blob) img = URL.createObjectURL(blob);
+                }
+                
+                if (previewTitle) previewTitle.innerText = title;
+                if (previewDesc) previewDesc.innerText = desc;
+                if (previewImg) previewImg.src = img;
+                if (previewMeta) previewMeta.innerText = `${duration} Hours • ${modules} Modules • ${category}`;
+            };
+
+            if (addForm) {
+                addForm.querySelectorAll('input, textarea').forEach(input => {
+                    input.addEventListener('input', refreshCoursePreview);
+                });
+
+                if (modulesCountInput && modulesCountDisplay) {
+                    modulesCountInput.addEventListener('input', (e) => {
+                        modulesCountDisplay.innerText = e.target.value;
+                        refreshCoursePreview();
+                    });
+                }
+
+                addForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const moduleCount = parseInt(modulesCountInput.value) || 1;
+                    const modules = [];
+                    for (let i = 1; i <= moduleCount; i++) {
+                        modules.push({
+                            id: 'mod-' + Date.now() + '-' + i,
+                            title: `Module ${i}: Introduction`,
+                            lessons: [{ id: 'les-' + Date.now() + '-' + i + '-1', title: 'Lesson 1', content: 'Content here' }],
+                            quiz: { id: 'quiz-' + Date.now() + '-' + i, questions: [] }
+                        });
+                    }
+                    const newCourse = {
+                        id: 'course-' + Date.now(),
+                        title: document.getElementById('course-title').value,
+                        description: document.getElementById('course-desc').value,
+                        duration: parseInt(document.getElementById('course-duration').value),
+                        category: document.getElementById('course-category').value,
+                        skills: document.getElementById('course-skills').value.split(',').map(s => s.trim()).filter(s => s !== ''),
+                        image: document.getElementById('course-image').value,
+                        imageId: document.getElementById('course-image-id').value,
+                        modules: modules
+                    };
+                    addCourse(newCourse);
+                    showNotification('Submission sent for review!', 'success');
+                    addForm.reset();
+                    if (modulesCountDisplay) modulesCountDisplay.innerText = '1';
+                    setCourseImageSource('url');
+                    refreshCoursePreview();
+                    renderEditorCourses();
+                });
+            }
+
+            const editForm = document.getElementById('edit-course-form');
+            if (editForm) {
+                editForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const courseId = document.getElementById('edit-course-id').value;
+                    const updatedData = {
+                        title: document.getElementById('edit-title').value,
+                        description: document.getElementById('edit-desc').value,
+                        duration: parseInt(document.getElementById('edit-duration').value),
+                        category: document.getElementById('edit-category').value,
+                        skills: document.getElementById('edit-skills').value.split(',').map(s => s.trim()).filter(s => s !== ''),
+                        image: document.getElementById('edit-image').value,
+                        imageId: document.getElementById('edit-image-id').value
+                    };
+                    updateCourse(courseId, updatedData);
+                    showNotification('Submission updated and sent for re-review!', 'success');
+                    renderEditorCourses();
+                });
+            }
+        });
+
+        function renderEditorCourses() {
+            const list = document.getElementById('editor-course-list');
+            if (!list) return;
+            const session = JSON.parse(localStorage.getItem('lms-session'));
+            courseData = getCourses();
+            const myCourses = courseData.filter(c => c.authorEmail === session.email);
+
+            list.innerHTML = myCourses.map(course => {
+                let statusBadge = '';
+                let statusColor = '';
+                switch(course.status) {
+                    case 'published': statusBadge = '✅ Published'; statusColor = '#10b981'; break;
+                    case 'rejected': statusBadge = '❌ Rejected'; statusColor = '#ef4444'; break;
+                    default: statusBadge = '⏳ Pending Review'; statusColor = '#f59e0b';
+                }
+
+                const courseImgId = `course-img-${course.id}`;
+                if (course.imageId) {
+                    getAssetBlob(course.imageId).then(blob => {
+                        if (blob) {
+                            const imgEl = document.getElementById(courseImgId);
+                            if (imgEl) imgEl.src = URL.createObjectURL(blob);
+                        }
+                    });
+                }
+
+                return `
+                <div class="card course-card">
+                    <div style="position: relative;">
+                        <img id="${courseImgId}" src="${course.image}" alt="${course.title}" referrerPolicy="no-referrer">
+                        <div style="position: absolute; top: 0.5rem; right: 0.5rem;">
+                            <span class="badge" style="background-color: ${statusColor}; color: white;">${statusBadge}</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="mb-2" style="font-size: 1.1rem;">${course.title}</h3>
+                        ${course.status === 'rejected' && course.rejectionReason ? `
+                            <div class="p-3 mb-4 rounded bg-danger-light" style="border: 1px solid #fee2e2;">
+                                <p class="small-caps text-danger mb-1">Rejection Reason:</p>
+                                <p style="font-size: 0.8rem; color: #b91c1c;">${course.rejectionReason}</p>
+                            </div>
+                        ` : ''}
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="openEditModal('${course.id}', 'basic')" class="btn btn-outline btn-sm">⚙️ Edit</button>
+                            <button onclick="openEditModal('${course.id}', 'modules')" class="btn btn-sm" style="background-color: #10b981; color: white;">📚 Curriculum</button>
+                            <button onclick="handleRemoveSubmission('${course.id}')" class="btn btn-danger btn-sm col-span-2 mt-2">🗑️ Delete Submission</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') || '<div class="col-span-3 text-center p-12 text-muted">No submissions yet. Start by creating your first course!</div>';
+        }
+
+        function handleRemoveSubmission(courseId) {
+            showConfirm('Delete Submission', 'Are you sure you want to delete this course submission? This action cannot be undone.', async () => {
+                await removeCourse(courseId);
+                showNotification('Submission deleted.', 'info');
+                renderEditorCourses();
+            });
+        }
+
+        function openEditModal(courseId, initialTab = 'basic') {
+            editingCourseId = courseId;
+            const course = courseData.find(c => c.id === courseId);
+            if (!course) return;
+            document.getElementById('edit-course-id').value = course.id;
+            document.getElementById('edit-title').value = course.title;
+            document.getElementById('edit-desc').value = course.description;
+            document.getElementById('edit-duration').value = course.duration;
+            document.getElementById('edit-category').value = course.category || 'Development';
+            document.getElementById('edit-skills').value = (course.skills || []).join(', ');
+            document.getElementById('edit-image').value = course.image;
+            document.getElementById('edit-image-id').value = course.imageId || '';
+
+            if (course.imageId) {
+                setEditImageSource('upload');
+            } else {
+                setEditImageSource('url');
+            }
+
+            document.getElementById('edit-modal').style.display = 'flex';
+            switchTab(initialTab);
+            renderEditModules();
+        }
+
+        function setCourseImageSource(source) {
+            const urlInput = document.getElementById('course-image');
+            const uploadContainer = document.getElementById('course-image-upload-container');
+            const uploadInput = document.getElementById('course-image-file');
+            const urlBtn = document.getElementById('img-source-url');
+            const uploadBtn = document.getElementById('img-source-upload');
+            
+            if (source === 'url') {
+                urlInput.style.display = 'block';
+                uploadContainer.style.display = 'none';
+                urlInput.required = true;
+                uploadInput.required = false;
+                urlBtn.style.backgroundColor = '#10b981';
+                urlBtn.style.borderColor = '#10b981';
+                urlBtn.style.color = 'white';
+                uploadBtn.className = 'btn btn-outline btn-sm';
+                document.getElementById('course-image-id').value = '';
+            } else {
+                urlInput.style.display = 'none';
+                uploadContainer.style.display = 'block';
+                urlInput.required = false;
+                uploadInput.required = !document.getElementById('course-image-id').value;
+                urlBtn.className = 'btn btn-outline btn-sm';
+                urlBtn.style.backgroundColor = 'transparent';
+                urlBtn.style.color = 'var(--text-muted)';
+                uploadBtn.className = 'btn btn-primary btn-sm';
+                uploadBtn.style.backgroundColor = '#10b981';
+                uploadBtn.style.borderColor = '#10b981';
+                uploadBtn.style.color = 'white';
+            }
+        }
+
+        function setEditImageSource(source) {
+            const urlInput = document.getElementById('edit-image');
+            const uploadContainer = document.getElementById('edit-image-upload-container');
+            const uploadInput = document.getElementById('edit-image-file');
+            const urlBtn = document.getElementById('edit-img-source-url');
+            const uploadBtn = document.getElementById('edit-img-source-upload');
+            
+            if (source === 'url') {
+                urlInput.style.display = 'block';
+                uploadContainer.style.display = 'none';
+                urlInput.required = true;
+                uploadInput.required = false;
+                urlBtn.style.backgroundColor = '#10b981';
+                urlBtn.style.borderColor = '#10b981';
+                urlBtn.style.color = 'white';
+                uploadBtn.className = 'btn btn-outline btn-sm';
+                document.getElementById('edit-image-id').value = '';
+            } else {
+                urlInput.style.display = 'none';
+                uploadContainer.style.display = 'block';
+                urlInput.required = false;
+                uploadInput.required = !document.getElementById('edit-image-id').value;
+                urlBtn.className = 'btn btn-outline btn-sm';
+                urlBtn.style.backgroundColor = 'transparent';
+                urlBtn.style.color = 'var(--text-muted)';
+                uploadBtn.className = 'btn btn-primary btn-sm';
+                uploadBtn.style.backgroundColor = '#10b981';
+                uploadBtn.style.borderColor = '#10b981';
+                uploadBtn.style.color = 'white';
+            }
+        }
+
+        document.getElementById('course-image-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const imageId = 'img-' + Date.now();
+            await saveAssetBlob(imageId, file);
+            document.getElementById('course-image-id').value = imageId;
+            e.target.required = false;
+            refreshCoursePreview();
+        });
+
+        document.getElementById('edit-image-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const imageId = 'img-' + Date.now();
+            await saveAssetBlob(imageId, file);
+            document.getElementById('edit-image-id').value = imageId;
+            e.target.required = false;
+        });
+
+        function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            const tabBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+            
+            if (tabId !== 'quiz') {
+                document.getElementById('quiz-tab-btn').style.display = 'none';
+            }
+        }
+
+        function renderEditModules() {
+            const list = document.getElementById('edit-modules-list');
+            const course = courseData.find(c => c.id === editingCourseId);
+            if (!course || !list) return;
+            list.innerHTML = course.modules.map((m, mIdx) => `
+                <div class="card p-4" style="border: 1px solid var(--border-color);">
+                    <div class="flex justify-between items-center mb-4">
+                        <input type="text" value="${m.title}" onchange="updateModuleTitle(${mIdx}, this.value)" class="form-input" style="font-weight: 600; width: 60%;">
+                        <div class="flex gap-2">
+                            <button onclick="openQuizEditor(${mIdx})" class="btn btn-outline btn-sm">📝 Quiz</button>
+                            <button onclick="removeModule(${mIdx})" class="btn btn-danger btn-sm">Delete</button>
+                        </div>
+                    </div>
+                    <div class="grid gap-3">
+                        ${m.lessons.map((l, lIdx) => `
+                            <div class="card p-3 bg-bg-color" style="border: 1px solid var(--border-color); margin: 0;">
+                                <div class="flex gap-2 mb-2">
+                                    <input type="text" value="${l.title}" onchange="updateLessonTitle(${mIdx}, ${lIdx}, this.value)" class="form-input" style="font-size: 0.9rem; font-weight: 600;">
+                                    <button onclick="removeLesson(${mIdx}, ${lIdx})" class="btn btn-outline btn-sm">✕</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="font-size: 0.75rem; display: block; margin-bottom: 0.25rem;">Video Source</label>
+                                    <div class="flex gap-2 mb-2">
+                                        <button onclick="setVideoSource(${mIdx}, ${lIdx}, 'url')" class="btn ${l.videoSource !== 'upload' ? 'btn-primary' : 'btn-outline'} btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; ${l.videoSource !== 'upload' ? 'background-color: #10b981; border-color: #10b981;' : ''}">URL</button>
+                                        <button onclick="setVideoSource(${mIdx}, ${lIdx}, 'upload')" class="btn ${l.videoSource === 'upload' ? 'btn-primary' : 'btn-outline'} btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; ${l.videoSource === 'upload' ? 'background-color: #10b981; border-color: #10b981;' : ''}">Upload</button>
+                                    </div>
+                                    ${l.videoSource === 'upload' 
+                                        ? `
+                                        <div class="flex flex-col gap-2">
+                                            <input type="file" accept="video/*" onchange="handleVideoUpload(${mIdx}, ${lIdx}, this)" class="form-input" style="font-size: 0.75rem;">
+                                            ${l.videoId ? `<p class="text-success" style="font-size: 0.7rem;">✅ Video uploaded (ID: ${l.videoId})</p>` : '<p class="text-muted" style="font-size: 0.7rem;">No video uploaded yet.</p>'}
+                                        </div>
+                                        `
+                                        : `<input type="text" class="form-input" value="${l.videoUrl || ''}" placeholder="YouTube/Vimeo URL" onchange="updateLesson(${mIdx}, ${lIdx}, 'videoUrl', this.value)" style="font-size: 0.8rem;">`
+                                    }
+                                </div>
+                                <textarea onchange="updateLessonContent(${mIdx}, ${lIdx}, this.value)" class="form-input" style="font-size: 0.8rem;" rows="2" placeholder="Lesson content (Markdown supported)...">${l.content || ''}</textarea>
+                            </div>
+                        `).join('')}
+                        <button onclick="addNewLesson(${mIdx})" class="btn btn-outline btn-sm mt-2">+ Add Lesson</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateLessonContent(mIdx, lIdx, val) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx].content = val;
+            saveCourses();
+        }
+
+        function updateLesson(mIdx, lIdx, field, value) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx][field] = value;
+            saveCourses();
+        }
+
+        async function setVideoSource(mIdx, lIdx, source) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx].videoSource = source;
+            saveCourses();
+            renderEditModules();
+        }
+
+        async function handleVideoUpload(mIdx, lIdx, input) {
+            const file = input.files[0];
+            if (!file) return;
+            showNotification('Uploading video...', 'info');
+            try {
+                const videoId = 'vid-' + Date.now();
+                await saveVideoBlob(videoId, file);
+                const course = courseData.find(c => c.id === editingCourseId);
+                if (course.modules[mIdx].lessons[lIdx].videoId) {
+                    await deleteVideoBlob(course.modules[mIdx].lessons[lIdx].videoId);
+                }
+                course.modules[mIdx].lessons[lIdx].videoId = videoId;
+                saveCourses();
+                renderEditModules();
+                showNotification('Video uploaded successfully!', 'success');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showNotification('Upload failed. Try a smaller file.', 'error');
+            }
+        }
+
+        function openQuizEditor(mIdx) {
+            editingModuleIdx = mIdx;
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[mIdx];
+            
+            document.getElementById('quiz-editor-title').innerText = `Quiz: ${module.title}`;
+            document.getElementById('quiz-tab-btn').style.display = 'block';
+            switchTab('quiz');
+            renderQuizQuestions();
+        }
+
+        function renderQuizQuestions() {
+            const list = document.getElementById('quiz-questions-list');
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            
+            if (!module.quiz) module.quiz = { id: 'q-' + Date.now(), questions: [] };
+            
+            list.innerHTML = module.quiz.questions.map((q, qIdx) => `
+                <div class="card p-4" style="border: 1px solid var(--border-color); margin: 0;">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-full mr-4">
+                            <label class="small-caps mb-1 block">Question ${qIdx + 1}</label>
+                            <input type="text" value="${q.question}" onchange="updateQuestionText(${qIdx}, this.value)" class="form-input w-full">
+                        </div>
+                        <button onclick="removeQuestion(${qIdx})" class="btn btn-danger btn-sm">✕</button>
+                    </div>
+                    <div class="grid gap-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <div class="flex items-center gap-2">
+                                <input type="radio" name="correct-${qIdx}" ${q.correct === oIdx ? 'checked' : ''} onchange="updateCorrectOption(${qIdx}, ${oIdx})">
+                                <input type="text" value="${opt}" onchange="updateOptionText(${qIdx}, ${oIdx}, this.value)" class="form-input" style="font-size: 0.85rem;">
+                                <button onclick="removeOption(${qIdx}, ${oIdx})" class="btn btn-outline btn-sm">✕</button>
+                            </div>
+                        `).join('')}
+                        <button onclick="addNewOption(${qIdx})" class="btn btn-outline btn-sm mt-2">+ Add Option</button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-center text-muted p-8">No questions yet. Add your first question!</p>';
+        }
+
+        function addNewQuestion() {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions.push({
+                question: 'New Question',
+                options: ['Option 1', 'Option 2'],
+                correct: 0
+            });
+            saveCourses();
+            renderQuizQuestions();
+        }
+
+        function removeQuestion(qIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions.splice(qIdx, 1);
+            saveCourses();
+            renderQuizQuestions();
+        }
+
+        function updateQuestionText(qIdx, val) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions[qIdx].question = val;
+            saveCourses();
+        }
+
+        function updateOptionText(qIdx, oIdx, val) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions[qIdx].options[oIdx] = val;
+            saveCourses();
+        }
+
+        function updateCorrectOption(qIdx, oIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions[qIdx].correct = oIdx;
+            saveCourses();
+        }
+
+        function addNewOption(qIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions[qIdx].options.push('New Option');
+            saveCourses();
+            renderQuizQuestions();
+        }
+
+        function removeOption(qIdx, oIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const module = course.modules[editingModuleIdx];
+            module.quiz.questions[qIdx].options.splice(oIdx, 1);
+            saveCourses();
+            renderQuizQuestions();
+        }
+
+        function updateModuleTitle(mIdx, val) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].title = val;
+            saveCourses();
+        }
+
+        function addNewModule() {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules.push({ id: 'm-' + Date.now(), title: 'New Module', lessons: [], quiz: { id: 'q-' + Date.now(), questions: [] } });
+            saveCourses();
+            renderEditModules();
+        }
+
+        function removeModule(mIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules.splice(mIdx, 1);
+            saveCourses();
+            renderEditModules();
+        }
+
+        function addNewLesson(mIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons.push({ id: 'l-' + Date.now(), title: 'New Lesson', content: '' });
+            saveCourses();
+            renderEditModules();
+        }
+
+        function updateLessonTitle(mIdx, lIdx, val) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx].title = val;
+            saveCourses();
+        }
+
+        function removeLesson(mIdx, lIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons.splice(lIdx, 1);
+            saveCourses();
+            renderEditModules();
+        }
+
+        function showConfirm(title, message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            modal.style.display = 'flex';
+            document.getElementById('confirm-ok').onclick = () => { onConfirm(); modal.style.display = 'none'; };
+            document.getElementById('confirm-cancel').onclick = () => modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybervast Smart LMS - Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span>🚀</span> Cybervast SmartLMS Admin
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" id="nav-courses" onclick="showAdminSection('courses')">🛠️ Course Management</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="nav-users" onclick="showAdminSection('users')">👥 User Management</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="nav-settings" onclick="showAdminSection('settings')">⚙️ Platform Settings</a>
+            </li>
+            <li class="nav-item">
+                <a href="/dashboard.html" class="nav-link">🏠 Learner View</a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <button id="theme-toggle" class="btn btn-outline w-full mb-2">☀️ Toggle Theme</button>
+            <button class="btn btn-danger w-full logout-btn">🚪 Logout</button>
+        </div>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="logo" style="margin-bottom: 0;">
+            <span>🚀</span> Cybervast SmartLMS Admin
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="theme-toggle-mobile" class="btn btn-outline" style="padding: 0.5rem; border: none;">☀️</button>
+            <button class="btn btn-outline logout-btn" style="padding: 0.5rem; border: none;">🚪</button>
+            <button id="sidebar-toggle" class="hamburger">☰</button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1 style="font-size: 2rem; font-weight: 700;">Admin Control Panel</h1>
+                <p class="text-muted">Add, remove, or modify courses for all learners.</p>
+            </div>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 1rem;">
+                <span class="user-name-display font-bold">Admin</span>
+                <div class="avatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: #ef4444; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <!-- Course Management Section -->
+        <div id="section-courses">
+            <!-- Add Course Form -->
+            <section class="admin-actions mb-12">
+            <div class="grid grid-cols-2 gap-8">
+                <!-- Form Side -->
+                <div class="card">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span style="font-size: 1.5rem;">✨</span>
+                        <h2 style="margin: 0;">Create New Course</h2>
+                    </div>
+                    <form id="add-course-form" class="grid grid-cols-2 gap-4">
+                        <div class="form-group col-span-2">
+                            <label for="course-title" class="small-caps mb-1 block">Course Title</label>
+                            <input type="text" id="course-title" class="form-input" placeholder="e.g., Advanced React Patterns" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-duration" class="small-caps mb-1 block">Duration (Hours)</label>
+                            <input type="number" id="course-duration" class="form-input" placeholder="e.g., 40" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-category" class="small-caps mb-1 block">Category</label>
+                            <select id="course-category" class="form-input">
+                                <option value="Development">Development</option>
+                                <option value="Design">Design</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="IT & Security">IT & Security</option>
+                                <option value="Business">Business</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-status" class="small-caps mb-1 block">Status</label>
+                            <select id="course-status" class="form-input">
+                                <option value="published">🚀 Published</option>
+                                <option value="coming-soon">⏳ Coming Soon</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-image-source" class="small-caps mb-1 block">Cover Image Source</label>
+                            <div class="flex gap-2 mb-2">
+                                <button type="button" id="img-source-url" class="btn btn-primary btn-sm" onclick="setCourseImageSource('url')">URL</button>
+                                <button type="button" id="img-source-upload" class="btn btn-outline btn-sm" onclick="setCourseImageSource('upload')">Upload</button>
+                            </div>
+                            <input type="url" id="course-image" class="form-input" placeholder="https://picsum.photos/seed/..." required>
+                            <div id="course-image-upload-container" style="display: none;">
+                                <input type="file" id="course-image-file" class="form-input" accept="image/*">
+                                <input type="hidden" id="course-image-id">
+                            </div>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-desc" class="small-caps mb-1 block">Short Description</label>
+                            <textarea id="course-desc" class="form-input" rows="2" placeholder="Briefly describe the course..." required></textarea>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-skills" class="small-caps mb-1 block">Skills Gained (comma-separated)</label>
+                            <textarea id="course-skills" class="form-input" rows="2" placeholder="e.g., React, TypeScript, State Management"></textarea>
+                        </div>
+                        <div class="form-group col-span-2">
+                            <label for="course-modules-count" class="small-caps mb-1 block">Initial Modules Count</label>
+                            <div class="flex items-center gap-4">
+                                <input type="range" id="course-modules-count" min="1" max="12" value="1" class="w-full" style="accent-color: var(--primary-color);">
+                                <span id="modules-count-display" class="font-bold" style="min-width: 2rem;">1</span>
+                            </div>
+                        </div>
+                        <div class="col-span-2 mt-4">
+                            <button type="submit" class="btn btn-primary w-full py-4 text-lg">🚀 Create & Launch Course</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Preview Side -->
+                <div class="preview-container">
+                    <div class="sticky-top" style="top: 2rem;">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="small-caps">Live Preview</span>
+                            <span class="badge badge-primary">Card View</span>
+                        </div>
+                        <div id="course-preview-card" class="card course-card" style="margin: 0; transform: scale(1.05); transform-origin: top left;">
+                            <img id="preview-img" src="https://picsum.photos/seed/preview/400/200" alt="Preview" referrerPolicy="no-referrer">
+                            <h3 id="preview-title" class="mb-2">Course Title Preview</h3>
+                            <p id="preview-desc" class="text-muted mb-4" style="font-size: 0.875rem;">Your course description will appear here as you type...</p>
+                            <div class="flex justify-between items-center">
+                                <span id="preview-meta" class="text-muted" style="font-size: 0.75rem;">0 Hours • 0 Modules</span>
+                                <button class="btn btn-primary" disabled>Enroll</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-8 bg-primary-light" style="border: 1px dashed var(--primary-color);">
+                            <h4 class="mb-2">💡 Pro Tip</h4>
+                            <p class="text-muted" style="font-size: 0.875rem;">Use high-quality images from Unsplash or Picsum to make your course stand out in the gallery.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Existing Courses List -->
+        <section class="manage-courses">
+            <h2 class="mb-6">Manage Existing Courses</h2>
+            <div id="admin-course-list" class="grid grid-cols-3 gap-6">
+                <!-- Courses will be listed here -->
+            </div>
+        </section>
+        </div>
+
+        <!-- User Management Section -->
+        <div id="section-users" style="display: none;">
+            <!-- Create Editor Form -->
+            <section class="create-editor mb-8">
+                <div class="card">
+                    <h3 class="mb-4">Create New Editor Account</h3>
+                    <p class="text-muted mb-4" style="font-size: 0.875rem;">Generate credentials for a new course editor. These credentials can be used to log in via the Editor Portal.</p>
+                    <form id="create-editor-form" class="grid grid-cols-3 gap-4">
+                        <div class="form-group">
+                            <label class="small-caps mb-1 block">Full Name</label>
+                            <input type="text" id="new-editor-name" class="form-input" placeholder="e.g. John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="small-caps mb-1 block">Email Address</label>
+                            <input type="email" id="new-editor-email" class="form-input" placeholder="editor@cybervast.ng" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="small-caps mb-1 block">Password</label>
+                            <input type="password" id="new-editor-password" class="form-input" placeholder="••••••••" required>
+                        </div>
+                        <div class="col-span-3">
+                            <button type="submit" class="btn btn-primary">
+                                <span>➕</span> Create Editor Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="manage-users">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 style="font-size: 1.5rem;">User Management</h2>
+                    <div class="search-container" style="max-width: 300px; margin: 0;">
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);">🔍</span>
+                            <input type="text" id="user-search" class="form-input" placeholder="Search users..." style="padding-left: 2.5rem;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-0 overflow-hidden">
+                    <table class="w-full" style="border-collapse: collapse; text-align: left;">
+                        <thead style="background-color: var(--bg-color); border-bottom: 1px solid var(--border-color);">
+                            <tr>
+                                <th class="p-4 small-caps">User</th>
+                                <th class="p-4 small-caps">Email</th>
+                                <th class="p-4 small-caps">Role</th>
+                                <th class="p-4 small-caps">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-user-list">
+                            <!-- Users will be listed here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Platform Settings Section -->
+        <div id="section-settings" style="display: none;">
+            <section class="settings-section container">
+                <div class="card mb-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span style="font-size: 1.5rem;">⚙️</span>
+                        <h2 style="margin: 0;">Certificate Settings</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="mb-4">Director's Signature</h3>
+                            <p class="text-muted mb-6">Upload the official signature of the Director of Programme. This will appear on all earned certificates.</p>
+                            
+                            <div class="form-group mb-6">
+                                <label class="small-caps mb-2 block">Signature Image</label>
+                                <div class="flex flex-col gap-4">
+                                    <div id="signature-preview-container" class="p-4 border-2 border-dashed rounded-xl flex items-center justify-center bg-white" style="border-color: var(--border-color); min-height: 120px;">
+                                        <img id="signature-preview" src="" alt="No signature uploaded" style="max-height: 100px; display: none;">
+                                        <span id="signature-placeholder" class="text-muted">No signature uploaded</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <input type="file" id="signature-upload" accept="image/*" style="display: none;">
+                                        <button onclick="document.getElementById('signature-upload').click()" class="btn btn-primary">Upload Signature</button>
+                                        <button id="remove-signature" class="btn btn-danger" style="display: none;">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-primary-light" style="border-color: var(--primary-color);">
+                            <h3 class="mb-4">Certificate Preview</h3>
+                            <div class="certificate-preview" style="transform: scale(0.6); transform-origin: top center; margin-bottom: -150px;">
+                                <div style="padding: 2rem; border: 2px dashed var(--border-color); background-color: #fff; color: #111; text-align: center;">
+                                    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem; font-family: 'Playfair Display', serif;">Certificate of Completion</h1>
+                                    <p style="font-size: 0.8rem; margin-bottom: 1rem;">This is to certify that</p>
+                                    <h2 style="font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 2px solid #111; display: inline-block; padding: 0 1rem;">Learner Name</h2>
+                                    <p style="font-size: 0.7rem;">has successfully completed the course</p>
+                                    <h3 style="font-size: 1rem; margin-top: 0.5rem; color: var(--primary-color);">Course Title</h3>
+                                    <div style="margin-top: 0.5rem; font-size: 0.4rem; color: var(--text-muted); font-family: monospace;">
+                                        Certificate ID: LMS-XXXXXXXX-000
+                                    </div>
+                                    <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                                        <div style="text-align: left;">
+                                            <p style="font-size: 0.5rem; border-top: 1px solid #111; padding-top: 0.2rem;">Date</p>
+                                        </div>
+                                        <div style="text-align: right; min-width: 100px;">
+                                            <div id="preview-signature-img-container" style="height: 40px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px;">
+                                                <img id="preview-signature-img" src="" alt="" style="max-height: 40px; display: none;">
+                                            </div>
+                                            <p style="font-size: 0.5rem; border-top: 1px solid #111; padding-top: 0.2rem;">Director of Programme</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Edit Course Modal -->
+    <div id="edit-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="edit-modal-title">Edit Course</h2>
+                <button onclick="closeEditModal()" class="btn btn-outline">✕</button>
+            </div>
+            
+            <div class="tabs mb-6">
+                <button class="tab-btn active" onclick="switchTab('basic')">Basic Info</button>
+                <button class="tab-btn" onclick="switchTab('modules')">Modules & Content</button>
+            </div>
+
+            <div id="tab-basic" class="tab-content">
+                <form id="edit-course-form" class="grid grid-cols-2 gap-4">
+                    <input type="hidden" id="edit-course-id">
+                    <div class="form-group">
+                        <label>Course Title</label>
+                        <input type="text" id="edit-title" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (Hours)</label>
+                        <input type="number" id="edit-duration" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Publish Status</label>
+                        <select id="edit-status" class="form-input">
+                            <option value="published">Published</option>
+                            <option value="coming-soon">Coming Soon</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="edit-category" class="form-input">
+                            <option value="Development">Development</option>
+                            <option value="Design">Design</option>
+                            <option value="Data Science">Data Science</option>
+                            <option value="IT & Security">IT & Security</option>
+                            <option value="Business">Business</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover Image Source</label>
+                        <div class="flex gap-2 mb-2">
+                            <button type="button" id="edit-img-source-url" class="btn btn-primary btn-sm" onclick="setEditImageSource('url')">URL</button>
+                            <button type="button" id="edit-img-source-upload" class="btn btn-outline btn-sm" onclick="setEditImageSource('upload')">Upload</button>
+                        </div>
+                        <input type="url" id="edit-image" class="form-input" required>
+                        <div id="edit-image-upload-container" style="display: none;">
+                            <input type="file" id="edit-image-file" class="form-input" accept="image/*">
+                            <input type="hidden" id="edit-image-id">
+                        </div>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label>Description</label>
+                        <textarea id="edit-desc" class="form-input" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label>Skills Gained (comma-separated)</label>
+                        <textarea id="edit-skills" class="form-input" rows="2" placeholder="e.g., React, TypeScript, State Management"></textarea>
+                    </div>
+                    <div class="col-span-2">
+                        <button type="submit" class="btn btn-primary w-full">Save Basic Info</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="tab-modules" class="tab-content" style="display: none;">
+                <div class="flex justify-between items-center mb-4">
+                    <h3>Course Modules</h3>
+                    <button onclick="addNewModule()" class="btn btn-outline btn-sm">Add Module</button>
+                </div>
+                <div id="edit-modules-list" class="grid gap-4">
+                    <!-- Modules will be listed here -->
+                </div>
+                <div class="mt-8 p-6 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-4" style="border-color: var(--border-color);">
+                    <p class="text-muted">Need more structure?</p>
+                    <button onclick="addNewModule()" class="btn btn-primary">➕ Add New Module</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="password-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2>Change Password</h2>
+                <button onclick="closePasswordModal()" class="btn btn-outline">✕</button>
+            </div>
+            <form id="change-password-form">
+                <input type="hidden" id="password-user-email">
+                <div class="form-group mb-4">
+                    <label class="small-caps mb-1 block">New Password</label>
+                    <input type="password" id="new-password-input" class="form-input" placeholder="••••••••" required minlength="6">
+                </div>
+                <div class="form-group mb-6">
+                    <label class="small-caps mb-1 block">Confirm New Password</label>
+                    <input type="password" id="confirm-password-input" class="form-input" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 id="confirm-title" class="mb-4">Are you sure?</h3>
+            <p id="confirm-message" class="text-muted mb-6">This action cannot be undone.</p>
+            <div class="flex gap-4">
+                <button id="confirm-cancel" class="btn btn-outline w-full">Cancel</button>
+                <button id="confirm-ok" class="btn btn-danger w-full">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/progress.js"></script>
+    <script>
+        const MAIN_ADMIN_EMAIL = 'segunomole2@gmail.com';
+        let refreshCoursePreview = async () => {};
+        let editingCourseId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminCourses();
+            renderAdminUsers();
+            showAdminSection('courses');
+            
+            // Handle User Search
+            const userSearch = document.getElementById('user-search');
+            if (userSearch) {
+                userSearch.addEventListener('input', (e) => {
+                    renderAdminUsers(e.target.value);
+                });
+            }
+            
+            // Handle Add Course
+            const addForm = document.getElementById('add-course-form');
+            const modulesCountInput = document.getElementById('course-modules-count');
+            const modulesCountDisplay = document.getElementById('modules-count-display');
+            
+            // Live Preview Elements
+            const previewTitle = document.getElementById('preview-title');
+            const previewDesc = document.getElementById('preview-desc');
+            const previewImg = document.getElementById('preview-img');
+            const previewMeta = document.getElementById('preview-meta');
+            
+            refreshCoursePreview = async () => {
+                const title = document.getElementById('course-title').value || 'Course Title Preview';
+                const desc = document.getElementById('course-desc').value || 'Your course description will appear here as you type...';
+                const duration = document.getElementById('course-duration').value || '0';
+                const category = document.getElementById('course-category').value || 'Development';
+                const modules = modulesCountInput ? modulesCountInput.value : '0';
+                
+                let img = document.getElementById('course-image').value || 'https://picsum.photos/seed/preview/400/200';
+                const imageId = document.getElementById('course-image-id').value;
+                if (imageId) {
+                    const blob = await getAssetBlob(imageId);
+                    if (blob) img = URL.createObjectURL(blob);
+                }
+                
+                if (previewTitle) previewTitle.innerText = title;
+                if (previewDesc) previewDesc.innerText = desc;
+                if (previewImg) previewImg.src = img;
+                if (previewMeta) previewMeta.innerText = `${duration} Hours • ${modules} Modules • ${category}`;
+
+                // Add a subtle pulse effect to show it updated
+                const card = document.getElementById('course-preview-card');
+                if (card) {
+                    card.style.transition = 'transform 0.2s ease';
+                    card.style.transform = 'scale(1.06)';
+                    setTimeout(() => {
+                        card.style.transform = 'scale(1.05)';
+                    }, 200);
+                }
+            };
+
+            if (addForm) {
+                // Listen for inputs to update preview
+                addForm.querySelectorAll('input, textarea, select').forEach(input => {
+                    input.addEventListener('input', refreshCoursePreview);
+                });
+
+                if (modulesCountInput && modulesCountDisplay) {
+                    modulesCountInput.addEventListener('input', (e) => {
+                        modulesCountDisplay.innerText = e.target.value;
+                        refreshCoursePreview();
+                    });
+                }
+
+                addForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const moduleCount = parseInt(document.getElementById('course-modules-count').value) || 1;
+                    const modules = [];
+                    
+                    for (let i = 1; i <= moduleCount; i++) {
+                        modules.push({
+                            id: 'mod-' + Date.now() + '-' + i,
+                            title: `Module ${i}: Introduction`,
+                            lessons: [
+                                {
+                                    id: 'les-' + Date.now() + '-' + i + '-1',
+                                    title: 'Lesson 1: Getting Started',
+                                    videoUrl: '',
+                                    videoSource: 'url',
+                                    content: 'Welcome to this lesson. Add your reading content here.'
+                                }
+                            ],
+                            quiz: {
+                                id: 'quiz-' + Date.now() + '-' + i,
+                                questions: []
+                            }
+                        });
+                    }
+
+                    const newCourse = {
+                        id: 'course-' + Date.now(),
+                        title: document.getElementById('course-title').value,
+                        description: document.getElementById('course-desc').value,
+                        duration: parseInt(document.getElementById('course-duration').value),
+                        category: document.getElementById('course-category').value,
+                        skills: document.getElementById('course-skills').value.split(',').map(s => s.trim()).filter(s => s !== ''),
+                        image: document.getElementById('course-image').value,
+                        imageId: document.getElementById('course-image-id').value,
+                        status: document.getElementById('course-status').value,
+                        modules: modules
+                    };
+                    
+                    addCourse(newCourse);
+                    showNotification('Course created! Now adding details...', 'success');
+                    addForm.reset();
+                    if (modulesCountDisplay) modulesCountDisplay.innerText = '1';
+                    setCourseImageSource('url');
+                    refreshCoursePreview();
+                    renderAdminCourses();
+                    
+                    // Auto-open the edit modal for the newly created course
+                    setTimeout(() => {
+                        openEditModal(newCourse.id, 'modules');
+                    }, 500);
+                });
+            }
+
+            // Handle Edit Basic Info
+            const editForm = document.getElementById('edit-course-form');
+            if (editForm) {
+                editForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const courseId = document.getElementById('edit-course-id').value;
+                    const updatedData = {
+                        title: document.getElementById('edit-title').value,
+                        description: document.getElementById('edit-desc').value,
+                        duration: parseInt(document.getElementById('edit-duration').value),
+                        category: document.getElementById('edit-category').value,
+                        skills: document.getElementById('edit-skills').value.split(',').map(s => s.trim()).filter(s => s !== ''),
+                        image: document.getElementById('edit-image').value,
+                        imageId: document.getElementById('edit-image-id').value,
+                        status: document.getElementById('edit-status').value
+                    };
+                    updateCourse(courseId, updatedData);
+                    showNotification('Course updated!', 'success');
+                    renderAdminCourses();
+                });
+            }
+        });
+
+        function showAdminSection(sectionId) {
+            const coursesSection = document.getElementById('section-courses');
+            const usersSection = document.getElementById('section-users');
+            const navCourses = document.getElementById('nav-courses');
+            const navUsers = document.getElementById('nav-users');
+
+            if (sectionId === 'courses') {
+                coursesSection.style.display = 'block';
+                usersSection.style.display = 'none';
+                navCourses.classList.add('active');
+                navUsers.classList.remove('active');
+                renderAdminCourses();
+            } else {
+                coursesSection.style.display = 'none';
+                usersSection.style.display = 'block';
+                navCourses.classList.remove('active');
+                navUsers.classList.add('active');
+                renderAdminUsers();
+            }
+        }
+
+        // Handle Create Editor Form
+        const createEditorForm = document.getElementById('create-editor-form');
+        if (createEditorForm) {
+            createEditorForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('new-editor-name').value;
+                const email = document.getElementById('new-editor-email').value;
+                const password = document.getElementById('new-editor-password').value;
+
+                const users = JSON.parse(localStorage.getItem('lms-users')) || [];
+                
+                // Check if user already exists
+                if (users.find(u => u.email === email)) {
+                    showNotification('A user with this email already exists!', 'error');
+                    return;
+                }
+
+                // Add new editor
+                users.push({
+                    name,
+                    email,
+                    password,
+                    role: 'editor'
+                });
+
+                localStorage.setItem('lms-users', JSON.stringify(users));
+                showNotification(`Editor account for ${name} created successfully!`, 'success');
+                
+                // Reset form and refresh list
+                createEditorForm.reset();
+                renderAdminUsers();
+            });
+        }
+
+        function renderAdminUsers(searchQuery = '') {
+            const list = document.getElementById('admin-user-list');
+            if (!list) return;
+
+            const users = JSON.parse(localStorage.getItem('lms-users')) || [];
+            const sessionStr = localStorage.getItem('lms-session');
+            const currentUser = sessionStr ? JSON.parse(sessionStr) : null;
+            const query = searchQuery.toLowerCase();
+
+            const filteredUsers = users.filter(user => 
+                (user.role === 'admin' || user.role === 'editor') &&
+                (user.name.toLowerCase().includes(query) || 
+                user.email.toLowerCase().includes(query))
+            );
+
+            list.innerHTML = filteredUsers.map(user => `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="avatar" style="width: 32px; height: 32px; border-radius: 50%; background-color: ${user.role === 'admin' ? '#ef4444' : '#10b981'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
+                                ${user.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <span class="font-medium">${user.name} ${currentUser && user.email === currentUser.email ? '<span class="text-muted">(You)</span>' : ''}</span>
+                        </div>
+                    </td>
+                    <td class="p-4 text-muted">${user.email}</td>
+                    <td class="p-4">
+                        <span class="badge ${user.role === 'admin' ? 'badge-primary' : 'btn-outline'}" style="${user.role !== 'admin' ? 'background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981;' : ''}">
+                            ${user.role === 'admin' ? 'Admin' : 'Editor'}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        ${currentUser && user.email !== currentUser.email && user.email !== MAIN_ADMIN_EMAIL && currentUser.email === MAIN_ADMIN_EMAIL ? `
+                            <div class="flex gap-2">
+                                <button onclick="toggleUserRole('${user.email}')" class="btn btn-outline btn-sm">
+                                    ${user.role === 'admin' ? '⬇️ Demote' : '⬆️ Promote'}
+                                </button>
+                                <button onclick="openChangePasswordModal('${user.email}')" class="btn btn-outline btn-sm">
+                                    🔑 Change Password
+                                </button>
+                            </div>
+                        ` : '<span class="text-muted" style="font-size: 0.875rem;">No actions available</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleUserRole(email) {
+            const sessionStr = localStorage.getItem('lms-session');
+            const currentUser = sessionStr ? JSON.parse(sessionStr) : null;
+
+            if (!currentUser || currentUser.email !== MAIN_ADMIN_EMAIL) {
+                showNotification('Only the main administrator can promote or demote users.', 'error');
+                return;
+            }
+
+            if (email === MAIN_ADMIN_EMAIL) {
+                showNotification('The main admin account cannot be demoted.', 'error');
+                return;
+            }
+            const users = JSON.parse(localStorage.getItem('lms-users')) || [];
+            const userIndex = users.findIndex(u => u.email === email);
+            
+            if (userIndex !== -1) {
+                const newRole = users[userIndex].role === 'admin' ? 'editor' : 'admin';
+                users[userIndex].role = newRole;
+                localStorage.setItem('lms-users', JSON.stringify(users));
+                
+                showNotification(`User ${users[userIndex].name} is now a ${newRole}!`, 'success');
+                renderAdminUsers(document.getElementById('user-search').value || '');
+            }
+        }
+
+        function openChangePasswordModal(email) {
+            const sessionStr = localStorage.getItem('lms-session');
+            const currentUser = sessionStr ? JSON.parse(sessionStr) : null;
+
+            if (!currentUser || currentUser.email !== MAIN_ADMIN_EMAIL) {
+                showNotification('Only the main administrator can change passwords for other users.', 'error');
+                return;
+            }
+
+            if (email === MAIN_ADMIN_EMAIL) {
+                showNotification('The main admin password cannot be changed by other users.', 'error');
+                return;
+            }
+            document.getElementById('password-user-email').value = email;
+            document.getElementById('password-modal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').style.display = 'none';
+            document.getElementById('change-password-form').reset();
+        }
+
+        const changePasswordForm = document.getElementById('change-password-form');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const sessionStr = localStorage.getItem('lms-session');
+                const currentUser = sessionStr ? JSON.parse(sessionStr) : null;
+
+                if (!currentUser || currentUser.email !== MAIN_ADMIN_EMAIL) {
+                    showNotification('Security Error: Unauthorized password change attempt.', 'error');
+                    closePasswordModal();
+                    return;
+                }
+
+                const email = document.getElementById('password-user-email').value;
+                
+                if (email === MAIN_ADMIN_EMAIL) {
+                    showNotification('Security Error: Cannot change main admin password.', 'error');
+                    closePasswordModal();
+                    return;
+                }
+
+                const newPassword = document.getElementById('new-password-input').value;
+                const confirmPassword = document.getElementById('confirm-password-input').value;
+
+                if (newPassword !== confirmPassword) {
+                    showNotification('Passwords do not match!', 'error');
+                    return;
+                }
+
+                const users = JSON.parse(localStorage.getItem('lms-users')) || [];
+                const userIndex = users.findIndex(u => u.email === email);
+
+                if (userIndex !== -1) {
+                    users[userIndex].password = newPassword;
+                    localStorage.setItem('lms-users', JSON.stringify(users));
+                    showNotification('Password updated successfully!', 'success');
+                    closePasswordModal();
+                }
+            });
+        }
+
+        function renderAdminCourses() {
+            const list = document.getElementById('admin-course-list');
+            if (!list) return;
+
+            // Refresh courseData
+            courseData = getCourses();
+
+            // Sort courses: Pending first, then Published, then Rejected
+            const sortedCourses = [...courseData].sort((a, b) => {
+                const order = { 'pending': 0, 'published': 1, 'rejected': 2 };
+                return (order[a.status] || 0) - (order[b.status] || 0);
+            });
+
+            list.innerHTML = sortedCourses.map(course => {
+                let statusBadge = '';
+                let statusColor = '';
+                switch(course.status) {
+                    case 'published': statusBadge = '✅ Live'; statusColor = 'var(--primary-color)'; break;
+                    case 'rejected': statusBadge = '❌ Rejected'; statusColor = '#ef4444'; break;
+                    default: statusBadge = '⏳ Pending Review'; statusColor = '#f59e0b';
+                }
+
+                const courseImgId = `course-img-${course.id}`;
+                if (course.imageId) {
+                    getAssetBlob(course.imageId).then(blob => {
+                        if (blob) {
+                            const imgEl = document.getElementById(courseImgId);
+                            if (imgEl) imgEl.src = URL.createObjectURL(blob);
+                        }
+                    });
+                }
+
+                return `
+                <div class="card course-card admin-course-card" style="${course.status === 'pending' ? 'border: 2px solid #f59e0b;' : ''}">
+                    <div style="position: relative;">
+                        <img id="${courseImgId}" src="${course.image}" alt="${course.title}" referrerPolicy="no-referrer">
+                        <div style="position: absolute; top: 0.5rem; right: 0.5rem;">
+                            <span class="badge" style="background-color: ${statusColor}; color: white;">
+                                ${statusBadge}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 style="font-size: 1.1rem; margin: 0;">${course.title}</h3>
+                        </div>
+                        <p class="text-muted mb-4" style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            ${course.description}
+                        </p>
+                        
+                        ${course.authorEmail ? `<p class="mb-4" style="font-size: 0.75rem; color: var(--primary-color);">✍️ By: ${course.authorEmail}</p>` : ''}
+
+                        <div class="flex justify-between items-center mb-4 text-muted" style="font-size: 0.75rem;">
+                            <span>⏱️ ${course.duration}h</span>
+                            <span>📚 ${course.modules.length} Modules</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            ${course.status === 'pending' ? `
+                                <button onclick="handleApproveCourse('${course.id}')" class="btn btn-primary btn-sm col-span-2" style="background-color: var(--success-color); border-color: var(--success-color);">✅ Approve & Publish</button>
+                                <button onclick="handleRejectCourse('${course.id}')" class="btn btn-danger btn-sm col-span-2">❌ Reject with Reason</button>
+                            ` : ''}
+                            <button onclick="openEditModal('${course.id}', 'basic')" class="btn btn-outline btn-sm">⚙️ Settings</button>
+                            <button onclick="openEditModal('${course.id}', 'modules')" class="btn btn-primary btn-sm">📚 Content</button>
+                            <button onclick="handleRemoveCourse('${course.id}')" class="btn btn-danger btn-sm col-span-2 mt-2">🗑️ Delete Course</button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleApproveCourse(courseId) {
+            updateCourse(courseId, { status: 'published', rejectionReason: null });
+            showNotification('Course approved and published!', 'success');
+            renderAdminCourses();
+        }
+
+        function handleRejectCourse(courseId) {
+            const reason = prompt('Please enter the reason for rejection:');
+            if (reason) {
+                updateCourse(courseId, { status: 'rejected', rejectionReason: reason });
+                showNotification('Course rejected.', 'info');
+                renderAdminCourses();
+            }
+        }
+
+        function openEditModal(courseId, initialTab = 'basic') {
+            editingCourseId = courseId;
+            const course = courseData.find(c => c.id === courseId);
+            if (!course) return;
+
+            document.getElementById('edit-course-id').value = course.id;
+            document.getElementById('edit-title').value = course.title;
+            document.getElementById('edit-desc').value = course.description;
+            document.getElementById('edit-duration').value = course.duration;
+            document.getElementById('edit-category').value = course.category || 'Development';
+            document.getElementById('edit-skills').value = (course.skills || []).join(', ');
+            document.getElementById('edit-image').value = course.image;
+            document.getElementById('edit-image-id').value = course.imageId || '';
+            document.getElementById('edit-status').value = course.status || 'published';
+
+            if (course.imageId) {
+                setEditImageSource('upload');
+            } else {
+                setEditImageSource('url');
+            }
+
+            document.getElementById('edit-modal').style.display = 'flex';
+            switchTab(initialTab);
+            renderEditModules();
+        }
+
+        function setCourseImageSource(source) {
+            const urlInput = document.getElementById('course-image');
+            const uploadContainer = document.getElementById('course-image-upload-container');
+            const uploadInput = document.getElementById('course-image-file');
+            const urlBtn = document.getElementById('img-source-url');
+            const uploadBtn = document.getElementById('img-source-upload');
+            
+            if (source === 'url') {
+                urlInput.style.display = 'block';
+                uploadContainer.style.display = 'none';
+                urlInput.required = true;
+                uploadInput.required = false;
+                urlBtn.className = 'btn btn-primary btn-sm';
+                uploadBtn.className = 'btn btn-outline btn-sm';
+                document.getElementById('course-image-id').value = '';
+            } else {
+                urlInput.style.display = 'none';
+                uploadContainer.style.display = 'block';
+                urlInput.required = false;
+                uploadInput.required = !document.getElementById('course-image-id').value;
+                urlBtn.className = 'btn btn-outline btn-sm';
+                uploadBtn.className = 'btn btn-primary btn-sm';
+            }
+        }
+
+        function setEditImageSource(source) {
+            const urlInput = document.getElementById('edit-image');
+            const uploadContainer = document.getElementById('edit-image-upload-container');
+            const uploadInput = document.getElementById('edit-image-file');
+            const urlBtn = document.getElementById('edit-img-source-url');
+            const uploadBtn = document.getElementById('edit-img-source-upload');
+            
+            if (source === 'url') {
+                urlInput.style.display = 'block';
+                uploadContainer.style.display = 'none';
+                urlInput.required = true;
+                uploadInput.required = false;
+                urlBtn.className = 'btn btn-primary btn-sm';
+                uploadBtn.className = 'btn btn-outline btn-sm';
+                document.getElementById('edit-image-id').value = '';
+            } else {
+                urlInput.style.display = 'none';
+                uploadContainer.style.display = 'block';
+                urlInput.required = false;
+                uploadInput.required = !document.getElementById('edit-image-id').value;
+                urlBtn.className = 'btn btn-outline btn-sm';
+                uploadBtn.className = 'btn btn-primary btn-sm';
+            }
+        }
+
+        document.getElementById('course-image-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const imageId = 'img-' + Date.now();
+            await saveAssetBlob(imageId, file);
+            document.getElementById('course-image-id').value = imageId;
+            e.target.required = false;
+            refreshCoursePreview();
+        });
+
+        document.getElementById('edit-image-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const imageId = 'img-' + Date.now();
+            await saveAssetBlob(imageId, file);
+            document.getElementById('edit-image-id').value = imageId;
+            e.target.required = false;
+        });
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        // Custom Confirmation Logic
+        function showConfirm(title, message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            
+            modal.style.display = 'flex';
+            
+            const okBtn = document.getElementById('confirm-ok');
+            const cancelBtn = document.getElementById('confirm-cancel');
+            
+            const cleanup = () => {
+                modal.style.display = 'none';
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+            
+            okBtn.onclick = () => {
+                onConfirm();
+                cleanup();
+            };
+            
+            cancelBtn.onclick = cleanup;
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+            document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
+
+        function renderEditModules() {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const list = document.getElementById('edit-modules-list');
+            if (!course || !list) return;
+
+            list.innerHTML = course.modules.map((module, mIdx) => `
+                <div class="card" style="background-color: var(--bg-color); border: 1px solid var(--border-color);">
+                    <div class="flex justify-between items-center mb-4">
+                        <input type="text" class="form-input" value="${module.title}" onchange="updateModuleTitle(${mIdx}, this.value)" style="font-weight: 700; width: 70%;">
+                        <button onclick="removeModule(${mIdx})" class="btn btn-danger btn-sm">Remove Module</button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 style="font-size: 0.9rem;">Lessons</h4>
+                            <button onclick="addLesson(${mIdx})" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Add Lesson</button>
+                        </div>
+                        <div class="grid gap-2">
+                            ${module.lessons.map((lesson, lIdx) => `
+                                <div class="p-3 border rounded" style="background-color: var(--card-bg);">
+                                    <input type="text" class="form-input mb-2" value="${lesson.title}" placeholder="Lesson Title" onchange="updateLesson(${mIdx}, ${lIdx}, 'title', this.value)">
+                                    
+                                    <div class="mb-2">
+                                        <label style="font-size: 0.75rem; display: block; margin-bottom: 0.25rem;">Video Source</label>
+                                        <div class="flex gap-2 mb-2">
+                                            <button onclick="setVideoSource(${mIdx}, ${lIdx}, 'url')" class="btn ${lesson.videoSource !== 'upload' ? 'btn-primary' : 'btn-outline'} btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">URL</button>
+                                            <button onclick="setVideoSource(${mIdx}, ${lIdx}, 'upload')" class="btn ${lesson.videoSource === 'upload' ? 'btn-primary' : 'btn-outline'} btn-sm" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">Upload</button>
+                                        </div>
+                                        
+                                        ${lesson.videoSource === 'upload' 
+                                            ? `
+                                            <div class="flex flex-col gap-2">
+                                                <input type="file" accept="video/*" onchange="handleVideoUpload(${mIdx}, ${lIdx}, this)" class="form-input" style="font-size: 0.75rem;">
+                                                ${lesson.videoId ? `<p class="text-success" style="font-size: 0.7rem;">✅ Video uploaded (ID: ${lesson.videoId})</p>` : '<p class="text-muted" style="font-size: 0.7rem;">No video uploaded yet.</p>'}
+                                            </div>
+                                            `
+                                            : `<input type="text" class="form-input" value="${lesson.videoUrl || ''}" placeholder="YouTube/Vimeo URL" onchange="updateLesson(${mIdx}, ${lIdx}, 'videoUrl', this.value)">`
+                                        }
+                                    </div>
+
+                                    <textarea class="form-input" rows="2" placeholder="Reading Content" onchange="updateLesson(${mIdx}, ${lIdx}, 'content', this.value)">${lesson.content}</textarea>
+                                    <button onclick="removeLesson(${mIdx}, ${lIdx})" class="btn btn-danger btn-sm mt-2" style="font-size: 0.7rem;">Remove Lesson</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem;">Assessment (Quiz)</h4>
+                        <div class="p-3 border rounded" style="background-color: var(--card-bg);">
+                            <div class="grid gap-4" id="quiz-questions-${mIdx}">
+                                ${module.quiz ? module.quiz.questions.map((q, qIdx) => `
+                                    <div class="border-b pb-4 mb-4">
+                                        <input type="text" class="form-input mb-2" value="${q.question}" placeholder="Question text" onchange="updateQuizQuestion(${mIdx}, ${qIdx}, 'question', this.value)">
+                                        <div class="grid gap-2">
+                                            ${q.options.map((opt, oIdx) => `
+                                                <div class="flex gap-2 items-center">
+                                                    <input type="radio" name="correct-${mIdx}-${qIdx}" ${q.correct === oIdx ? 'checked' : ''} onchange="updateQuizQuestion(${mIdx}, ${qIdx}, 'correct', ${oIdx})">
+                                                    <input type="text" class="form-input" value="${opt}" placeholder="Option ${oIdx + 1}" onchange="updateQuizOption(${mIdx}, ${qIdx}, ${oIdx}, this.value)">
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                        <button onclick="removeQuizQuestion(${mIdx}, ${qIdx})" class="btn btn-danger btn-sm mt-2" style="font-size: 0.7rem;">Remove Question</button>
+                                    </div>
+                                `).join('') : '<p class="text-muted">No questions added yet.</p>'}
+                            </div>
+                            <button onclick="addQuizQuestion(${mIdx})" class="btn btn-outline btn-sm w-full mt-2">Add Question</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Module Management Functions
+        function addNewModule() {
+            const course = courseData.find(c => c.id === editingCourseId);
+            const newModule = {
+                id: 'm-' + Date.now(),
+                title: 'New Module',
+                lessons: [],
+                quiz: { id: 'q-' + Date.now(), questions: [] }
+            };
+            course.modules.push(newModule);
+            saveCourses();
+            renderEditModules();
+        }
+
+        function removeModule(mIdx) {
+            showConfirm(
+                'Remove Module?',
+                'Are you sure you want to remove this module and all its content?',
+                () => {
+                    const course = courseData.find(c => c.id === editingCourseId);
+                    course.modules.splice(mIdx, 1);
+                    saveCourses();
+                    renderEditModules();
+                }
+            );
+        }
+
+        function updateModuleTitle(mIdx, title) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].title = title;
+            saveCourses();
+        }
+
+        // Lesson Management Functions
+        function addLesson(mIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons.push({
+                id: 'l-' + Date.now(),
+                title: 'New Lesson',
+                content: '',
+                videoUrl: ''
+            });
+            saveCourses();
+            renderEditModules();
+        }
+
+        function updateLesson(mIdx, lIdx, field, value) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx][field] = value;
+            saveCourses();
+        }
+
+        async function setVideoSource(mIdx, lIdx, source) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons[lIdx].videoSource = source;
+            saveCourses();
+            renderEditModules();
+        }
+
+        async function handleVideoUpload(mIdx, lIdx, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Show loading state
+            showNotification('Uploading video...', 'info');
+            
+            try {
+                const videoId = 'vid-' + Date.now();
+                await saveVideoBlob(videoId, file);
+                
+                const course = courseData.find(c => c.id === editingCourseId);
+                
+                // Delete old video if it exists
+                if (course.modules[mIdx].lessons[lIdx].videoId) {
+                    await deleteVideoBlob(course.modules[mIdx].lessons[lIdx].videoId);
+                }
+                
+                course.modules[mIdx].lessons[lIdx].videoId = videoId;
+                saveCourses();
+                renderEditModules();
+                showNotification('Video uploaded successfully!', 'success');
+            } catch (error) {
+                console.error('Upload failed:', error);
+                showNotification('Upload failed. Try a smaller file.', 'error');
+            }
+        }
+
+        function removeLesson(mIdx, lIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].lessons.splice(lIdx, 1);
+            saveCourses();
+            renderEditModules();
+        }
+
+        // Quiz Management Functions
+        function addQuizQuestion(mIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            if (!course.modules[mIdx].quiz) {
+                course.modules[mIdx].quiz = { id: 'q-' + Date.now(), questions: [] };
+            }
+            course.modules[mIdx].quiz.questions.push({
+                question: 'New Question',
+                options: ['', '', ''],
+                correct: 0
+            });
+            saveCourses();
+            renderEditModules();
+        }
+
+        function updateQuizQuestion(mIdx, qIdx, field, value) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].quiz.questions[qIdx][field] = value;
+            saveCourses();
+        }
+
+        function updateQuizOption(mIdx, qIdx, oIdx, value) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].quiz.questions[qIdx].options[oIdx] = value;
+            saveCourses();
+        }
+
+        function removeQuizQuestion(mIdx, qIdx) {
+            const course = courseData.find(c => c.id === editingCourseId);
+            course.modules[mIdx].quiz.questions.splice(qIdx, 1);
+            saveCourses();
+            renderEditModules();
+        }
+
+        function showAdminSection(section) {
+            document.getElementById('section-courses').style.display = section === 'courses' ? 'block' : 'none';
+            document.getElementById('section-users').style.display = section === 'users' ? 'block' : 'none';
+            document.getElementById('section-settings').style.display = section === 'settings' ? 'block' : 'none';
+            
+            document.getElementById('nav-courses').classList.toggle('active', section === 'courses');
+            document.getElementById('nav-users').classList.toggle('active', section === 'users');
+            document.getElementById('nav-settings').classList.toggle('active', section === 'settings');
+
+            if (section === 'settings') {
+                loadSignature();
+            }
+        }
+
+        // Signature Management
+        function loadSignature() {
+            const signature = localStorage.getItem('lms-director-signature');
+            const preview = document.getElementById('signature-preview');
+            const placeholder = document.getElementById('signature-placeholder');
+            const removeBtn = document.getElementById('remove-signature');
+            const previewCertImg = document.getElementById('preview-signature-img');
+
+            if (signature) {
+                preview.src = signature;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+                removeBtn.style.display = 'inline-flex';
+                
+                previewCertImg.src = signature;
+                previewCertImg.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+                removeBtn.style.display = 'none';
+                
+                previewCertImg.style.display = 'none';
+            }
+        }
+
+        document.getElementById('signature-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64 = event.target.result;
+                localStorage.setItem('lms-director-signature', base64);
+                loadSignature();
+                showNotification('Signature uploaded successfully!', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('remove-signature').addEventListener('click', function() {
+            showConfirm(
+                'Remove Signature?',
+                'Are you sure you want to remove the director\'s signature?',
+                () => {
+                    localStorage.removeItem('lms-director-signature');
+                    loadSignature();
+                    showNotification('Signature removed.', 'success');
+                }
+            );
+        });
+
+        async function handleRemoveCourse(courseId) {
+            showConfirm(
+                'Remove Course?',
+                'Are you sure you want to remove this course? This will affect all learners.',
+                async () => {
+                    await removeCourse(courseId);
+                    showNotification('Course removed.', 'success');
+                    renderAdminCourses();
+                }
+            );
+        }
+    </script>
+</body>
+</html>

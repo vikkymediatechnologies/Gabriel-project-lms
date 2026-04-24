@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybervast SmartLMS — Study Planner</title>
+
+  <!-- FOUC prevention -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('cv-theme') || 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+/* ══════════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════════ */
+:root {
+  --d-primary:       #6C21E0;
+  --d-primary-dark:  #4F13B0;
+  --d-primary-mid:   #9B59F5;
+  --d-primary-light: #EDE8FA;
+  --d-primary-glow:  rgba(108,33,224,0.18);
+  --d-success:       #10B981;
+  --d-success-light: #D1FAE5;
+  --d-warning:       #F59E0B;
+  --d-warning-light: rgba(245,158,11,0.12);
+  --d-danger:        #EF4444;
+  --d-danger-light:  rgba(239,68,68,0.10);
+  --d-info:          #3B82F6;
+  --d-info-light:    rgba(59,130,246,0.10);
+
+  --d-bg:            #F4F2FC;
+  --d-surface:       #FFFFFF;
+  --d-surface-2:     #EDE8FA;
+  --d-surface-3:     #F8F7FF;
+
+  --d-text:          #160E30;
+  --d-text-2:        #574D74;
+  --d-text-3:        #9589B0;
+
+  --d-border:        rgba(108,33,224,0.10);
+  --d-border-md:     rgba(108,33,224,0.20);
+  --d-border-strong: rgba(108,33,224,0.32);
+
+  --d-shadow-sm:     0 1px 8px rgba(108,33,224,0.07);
+  --d-shadow:        0 4px 20px rgba(108,33,224,0.10);
+  --d-shadow-md:     0 8px 32px rgba(108,33,224,0.15);
+  --d-shadow-hover:  0 12px 40px rgba(108,33,224,0.22);
+
+  --d-sidebar-width: 264px;
+  --d-nav-height:    64px;
+  --d-radius:        14px;
+  --d-radius-lg:     20px;
+  --d-radius-sm:     8px;
+  --d-transition:    all 0.25s ease;
+}
+
+[data-theme="dark"] {
+  --d-primary:       #A06AF5;
+  --d-primary-dark:  #C49BFF;
+  --d-primary-mid:   #7B3FE4;
+  --d-primary-light: #1A1035;
+  --d-primary-glow:  rgba(160,106,245,0.20);
+  --d-success:       #34D399;
+  --d-success-light: #064E3B;
+  --d-warning:       #FBBF24;
+  --d-warning-light: rgba(251,191,36,0.12);
+  --d-danger:        #F87171;
+  --d-danger-light:  rgba(248,113,113,0.12);
+  --d-info:          #60A5FA;
+  --d-info-light:    rgba(96,165,250,0.12);
+
+  --d-bg:            #0C0818;
+  --d-surface:       #160E30;
+  --d-surface-2:     #1E1640;
+  --d-surface-3:     #120C28;
+
+  --d-text:          #EDE8FA;
+  --d-text-2:        #B5ADCF;
+  --d-text-3:        #7B7096;
+
+  --d-border:        rgba(160,106,245,0.12);
+  --d-border-md:     rgba(160,106,245,0.22);
+  --d-border-strong: rgba(160,106,245,0.36);
+
+  --d-shadow-sm:     0 1px 8px rgba(0,0,0,0.4);
+  --d-shadow:        0 4px 20px rgba(0,0,0,0.45);
+  --d-shadow-md:     0 8px 32px rgba(0,0,0,0.5);
+  --d-shadow-hover:  0 12px 40px rgba(160,106,245,0.25);
+}
+
+/* ══════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--d-bg);
+  color: var(--d-text);
+  line-height: 1.65;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+svg { flex-shrink: 0; display: inline-block; vertical-align: middle; }
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 100dvh;
+  width: var(--d-sidebar-width);
+  background: var(--d-surface);
+  border-right: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.75rem 1.25rem 1.5rem;
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s, border-color 0.3s;
+  scrollbar-width: thin;
+  scrollbar-color: var(--d-border-md) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--d-border-md); border-radius: 4px; }
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--d-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.75rem;
+  flex-shrink: 0;
+}
+.logo svg { width: 26px; height: 26px; }
+
+.sidebar-search { margin-bottom: 1.5rem; flex-shrink: 0; position: relative; }
+.sidebar-search svg {
+  position: absolute; left: 0.75rem; top: 50%;
+  transform: translateY(-50%);
+  width: 15px; height: 15px;
+  color: var(--d-text-3); pointer-events: none;
+}
+.sidebar-search .form-input { padding-left: 2.2rem; height: 38px; font-size: 0.85rem; }
+
+.nav-links { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.nav-link {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--d-radius-sm);
+  font-size: 0.9rem; font-weight: 500;
+  color: var(--d-text-2);
+  transition: var(--d-transition);
+}
+.nav-link svg { width: 18px; height: 18px; }
+.nav-link:hover { background: var(--d-primary-light); color: var(--d-primary); }
+.nav-link.active { background: var(--d-primary); color: #fff; box-shadow: 0 4px 12px var(--d-primary-glow); }
+[data-theme="dark"] .nav-link.active { background: var(--d-primary-mid); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--d-border);
+  display: flex; flex-direction: column; gap: 0.6rem; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════
+   OVERLAY
+══════════════════════════════════════════════ */
+.sidebar-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(12,8,24,0.55); backdrop-filter: blur(4px);
+  z-index: 190; opacity: 0; transition: opacity 0.3s ease;
+}
+.sidebar-overlay.open { display: block; opacity: 1; }
+
+/* ══════════════════════════════════════════════
+   MOBILE HEADER
+══════════════════════════════════════════════ */
+.mobile-header {
+  display: none; position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--d-nav-height); z-index: 180;
+  background: var(--d-surface);
+  border-bottom: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow-sm);
+  padding: 0 1rem;
+  align-items: center; justify-content: space-between;
+  transition: background 0.3s;
+}
+.mobile-header .logo { font-size: 0.92rem; margin-bottom: 0; }
+.mobile-header .logo svg { width: 20px; height: 20px; }
+.mobile-header-actions { display: flex; align-items: center; gap: 6px; }
+
+.hamburger {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2);
+  border: 1px solid var(--d-border);
+  cursor: pointer; transition: var(--d-transition);
+  color: var(--d-text);
+}
+.hamburger svg { width: 20px; height: 20px; }
+.hamburger:hover, .hamburger.open {
+  border-color: var(--d-primary); color: var(--d-primary); background: var(--d-primary-light);
+}
+
+.btn-icon {
+  width: 36px; height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2); border: 1px solid var(--d-border);
+  color: var(--d-text-2); cursor: pointer; transition: var(--d-transition);
+}
+.btn-icon svg { width: 16px; height: 16px; }
+.btn-icon:hover { border-color: var(--d-primary); color: var(--d-primary); }
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════ */
+.main-content {
+  margin-left: var(--d-sidebar-width);
+  min-height: 100dvh;
+  padding: 2rem clamp(1.25rem, 3vw, 2.5rem) 4rem;
+  transition: margin-left 0.3s ease;
+}
+
+/* ══════════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════════ */
+.page-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.page-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 800;
+  color: var(--d-text);
+  line-height: 1.15;
+  margin-bottom: 0.3rem;
+}
+.page-header p { font-size: 0.9rem; color: var(--d-text-2); }
+
+/* ══════════════════════════════════════════════
+   CARD
+══════════════════════════════════════════════ */
+.card {
+  background: var(--d-surface);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--d-shadow-sm);
+  transition: var(--d-transition);
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--d-text);
+  margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.card-title svg { width: 18px; height: 18px; color: var(--d-primary); }
+
+/* ══════════════════════════════════════════════
+   PLANNER LAYOUT
+══════════════════════════════════════════════ */
+.planner-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ══════════════════════════════════════════════
+   FORM ELEMENTS
+══════════════════════════════════════════════ */
+.form-input {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid var(--d-border-md);
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface);
+  color: var(--d-text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+  -moz-appearance: textfield;
+}
+.form-input::-webkit-inner-spin-button,
+.form-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.form-input::placeholder { color: var(--d-text-3); }
+.form-input:focus { border-color: var(--d-primary); box-shadow: 0 0 0 3px var(--d-primary-glow); }
+.form-input:invalid:not(:placeholder-shown) { border-color: var(--d-danger); }
+
+.form-group { margin-bottom: 1.1rem; }
+.form-label {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--d-text-3);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin-bottom: 0.45rem;
+}
+.form-label svg { width: 13px; height: 13px; }
+
+.input-with-unit { position: relative; }
+.input-unit {
+  position: absolute; right: 0.9rem; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--d-text-3); pointer-events: none;
+}
+.input-with-unit .form-input { padding-right: 3.5rem; }
+
+/* Active course chip */
+.active-course-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--d-primary-light);
+  border: 1.5px solid var(--d-border-strong);
+  border-radius: var(--d-radius-sm);
+  margin-bottom: 1.25rem;
+}
+.course-chip-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--d-primary);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.course-chip-icon svg { width: 18px; height: 18px; color: #fff; }
+.course-chip-label { font-size: 0.72rem; font-weight: 600; color: var(--d-text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.course-chip-name { font-size: 0.9rem; font-weight: 700; color: var(--d-primary); margin-top: 1px; }
+
+/* Day selector */
+.day-selector {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+.day-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  font-size: 0.72rem; font-weight: 700;
+  border: 1.5px solid var(--d-border-md);
+  background: var(--d-surface-2);
+  color: var(--d-text-3);
+  cursor: pointer; transition: var(--d-transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.day-btn:hover { border-color: var(--d-primary); color: var(--d-primary); background: var(--d-primary-light); }
+.day-btn.selected { border-color: var(--d-primary); background: var(--d-primary); color: #fff; box-shadow: 0 3px 10px var(--d-primary-glow); }
+
+/* Range slider */
+.range-wrap { position: relative; padding-bottom: 1.25rem; }
+.range-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--d-text-3); margin-top: 0.35rem; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px;
+  border-radius: 999px;
+  background: var(--d-surface-2);
+  outline: none; cursor: pointer;
+  transition: background 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--d-primary);
+  border: 3px solid var(--d-surface);
+  box-shadow: 0 2px 8px var(--d-primary-glow);
+  transition: transform 0.15s;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--d-primary); border: 3px solid var(--d-surface);
+  box-shadow: 0 2px 8px var(--d-primary-glow);
+}
+.range-value-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 36px; height: 28px;
+  background: var(--d-primary); color: #fff;
+  border-radius: 6px; font-size: 0.82rem; font-weight: 700;
+  padding: 0 8px; margin-left: 0.6rem;
+  box-shadow: 0 2px 8px var(--d-primary-glow);
+}
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 0.65rem 1.3rem;
+  border-radius: var(--d-radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem; font-weight: 600; line-height: 1;
+  transition: var(--d-transition); border: 1.5px solid transparent;
+  cursor: pointer; white-space: nowrap;
+}
+.btn svg { width: 15px; height: 15px; }
+.btn-primary { background: var(--d-primary); color: #fff; border-color: var(--d-primary); }
+.btn-primary:hover:not(:disabled) { background: var(--d-primary-dark); border-color: var(--d-primary-dark); transform: translateY(-1px); box-shadow: var(--d-shadow-md); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline { background: transparent; color: var(--d-text); border-color: var(--d-border-md); }
+.btn-outline:hover { background: var(--d-primary-light); color: var(--d-primary); border-color: var(--d-border-strong); }
+.btn-danger { background: transparent; color: var(--d-danger); border-color: rgba(239,68,68,0.35); }
+.btn-danger:hover { background: var(--d-danger-light); border-color: var(--d-danger); }
+.btn-sm { padding: 0.4rem 0.85rem; font-size: 0.8rem; }
+.w-full { width: 100%; }
+
+/* Theme toggle sidebar */
+#theme-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.875rem; font-weight: 500;
+  padding: 0.55rem 1rem;
+  border-radius: var(--d-radius-sm);
+  background: var(--d-surface-2); color: var(--d-text-2);
+  border: 1px solid var(--d-border-md);
+  cursor: pointer; width: 100%; transition: var(--d-transition);
+}
+#theme-toggle svg { width: 16px; height: 16px; }
+#theme-toggle:hover { background: var(--d-primary-light); color: var(--d-primary); border-color: var(--d-border-strong); }
+
+/* ══════════════════════════════════════════════
+   PLAN RESULT PANEL
+══════════════════════════════════════════════ */
+.result-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3.5rem 2rem; text-align: center; gap: 1rem;
+}
+.result-empty-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--d-primary-light);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 0.25rem;
+}
+.result-empty-icon svg { width: 34px; height: 34px; color: var(--d-primary); }
+.result-empty h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem; font-weight: 700; color: var(--d-text);
+}
+.result-empty p { font-size: 0.875rem; color: var(--d-text-2); max-width: 260px; }
+
+/* Feasibility banner */
+.feasibility-banner {
+  display: flex; align-items: center; gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--d-radius-sm);
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem; font-weight: 600;
+}
+.feasibility-banner svg { width: 22px; height: 22px; flex-shrink: 0; }
+.feasibility-banner.feasible { background: var(--d-success-light); color: var(--d-success); border: 1.5px solid var(--d-success); }
+.feasibility-banner.warning  { background: var(--d-warning-light); color: var(--d-warning); border: 1.5px solid var(--d-warning); }
+.feasibility-banner.danger   { background: var(--d-danger-light); color: var(--d-danger); border: 1.5px solid var(--d-danger); }
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.stat-card {
+  background: var(--d-surface-3);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-sm);
+  padding: 0.9rem 1rem;
+  display: flex; flex-direction: column; gap: 0.2rem;
+}
+.stat-card-label {
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--d-text-3); text-transform: uppercase; letter-spacing: 0.05em;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.stat-card-label svg { width: 11px; height: 11px; }
+.stat-card-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.35rem; font-weight: 800;
+  color: var(--d-text); line-height: 1.1;
+}
+.stat-card-sub { font-size: 0.72rem; color: var(--d-text-3); }
+
+/* Timeline */
+.timeline-section { margin-bottom: 1.25rem; }
+.timeline-section-title {
+  font-size: 0.8rem; font-weight: 700;
+  color: var(--d-text-3); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.timeline-section-title svg { width: 13px; height: 13px; }
+
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute; left: 6px; top: 6px; bottom: 6px;
+  width: 2px; background: var(--d-border-md); border-radius: 2px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 1rem;
+  padding-left: 0.75rem;
+}
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -1.5rem; top: 4px;
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--d-surface);
+  box-shadow: 0 0 0 2px var(--d-border-md);
+}
+.timeline-dot.primary { background: var(--d-primary); box-shadow: 0 0 0 2px var(--d-primary-glow); }
+.timeline-dot.success { background: var(--d-success); box-shadow: 0 0 0 2px rgba(16,185,129,0.25); }
+.timeline-dot.warning { background: var(--d-warning); box-shadow: 0 0 0 2px rgba(245,158,11,0.25); }
+.timeline-dot.muted   { background: var(--d-text-3); }
+.timeline-label { font-size: 0.82rem; font-weight: 600; color: var(--d-text); margin-bottom: 1px; }
+.timeline-sub   { font-size: 0.75rem; color: var(--d-text-3); }
+
+/* Progress ring */
+.progress-ring-wrap {
+  display: flex; align-items: center; gap: 1.25rem;
+  padding: 1rem;
+  background: var(--d-surface-3);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-sm);
+  margin-bottom: 1.25rem;
+}
+.progress-ring-info { flex: 1; }
+.progress-ring-info h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem; font-weight: 700; color: var(--d-text); margin-bottom: 0.2rem;
+}
+.progress-ring-info p { font-size: 0.78rem; color: var(--d-text-2); }
+.ring-svg { transform: rotate(-90deg); flex-shrink: 0; }
+.ring-bg   { fill: none; stroke: var(--d-surface-2); }
+.ring-fill { fill: none; stroke: var(--d-primary); stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+
+/* Weekly schedule table */
+.schedule-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.82rem; }
+.schedule-table th {
+  background: var(--d-surface-2);
+  color: var(--d-text-3); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.7rem;
+  padding: 0.5rem 0.75rem; text-align: left;
+}
+.schedule-table th:first-child { border-radius: var(--d-radius-sm) 0 0 0; }
+.schedule-table th:last-child { border-radius: 0 var(--d-radius-sm) 0 0; }
+.schedule-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--d-border);
+  color: var(--d-text-2); vertical-align: middle;
+}
+.schedule-table tr:last-child td { border-bottom: none; }
+.schedule-table tr:hover td { background: var(--d-surface-2); }
+.day-pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+}
+.day-pill.active  { background: var(--d-primary-light); color: var(--d-primary); }
+.day-pill.rest    { background: var(--d-surface-2); color: var(--d-text-3); }
+
+/* Tips section */
+.tips-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.tip-item {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  font-size: 0.825rem; color: var(--d-text-2); line-height: 1.5;
+}
+.tip-icon {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.tip-icon svg { width: 12px; height: 12px; }
+.tip-icon.purple { background: var(--d-primary-light); color: var(--d-primary); }
+.tip-icon.green  { background: var(--d-success-light); color: var(--d-success); }
+.tip-icon.yellow { background: var(--d-warning-light); color: var(--d-warning); }
+
+/* Saved plans list */
+.saved-plan-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 0.75rem; padding: 0.75rem 1rem;
+  background: var(--d-surface-3);
+  border: 1px solid var(--d-border);
+  border-radius: var(--d-radius-sm);
+  margin-bottom: 0.6rem;
+  transition: var(--d-transition);
+}
+.saved-plan-item:hover { border-color: var(--d-border-md); box-shadow: var(--d-shadow-sm); }
+.saved-plan-info { flex: 1; min-width: 0; }
+.saved-plan-title { font-size: 0.875rem; font-weight: 600; color: var(--d-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved-plan-meta  { font-size: 0.75rem; color: var(--d-text-3); margin-top: 1px; }
+.saved-plan-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+/* Empty saved plans */
+.no-plans-msg {
+  text-align: center; padding: 2rem;
+  color: var(--d-text-3); font-size: 0.85rem;
+}
+.no-plans-msg svg { width: 32px; height: 32px; margin: 0 auto 0.6rem; display: block; opacity: 0.5; }
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+#toast-container {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  z-index: 1000; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.toast {
+  background: var(--d-surface); border: 1px solid var(--d-border-md);
+  border-radius: var(--d-radius); padding: 0.85rem 1.25rem;
+  box-shadow: var(--d-shadow-md); font-size: 0.875rem; color: var(--d-text);
+  display: flex; align-items: center; gap: 0.6rem;
+  max-width: 320px; animation: toastIn 0.3s ease;
+}
+.toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+.toast-success { border-left: 4px solid var(--d-success); }
+.toast-success svg { color: var(--d-success); }
+.toast-error { border-left: 4px solid var(--d-danger); }
+.toast-error svg { color: var(--d-danger); }
+.toast-info { border-left: 4px solid var(--d-primary); }
+.toast-info svg { color: var(--d-primary); }
+@keyframes toastIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ══════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════ */
+.text-muted { color: var(--d-text-2); }
+.mb-2  { margin-bottom: 0.5rem; }
+.mb-4  { margin-bottom: 1rem; }
+.mb-6  { margin-bottom: 1.5rem; }
+.gap-4 { gap: 1rem; }
+.flex  { display: flex; }
+.items-center { align-items: center; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — ≤ 1100px (tablet landscape)
+══════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .planner-grid { grid-template-columns: 340px 1fr; }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — ≤ 900px (tablet portrait)
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .planner-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — ≤ 768px (mobile)
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .mobile-header { display: flex; }
+  .sidebar { left: calc(-1 * var(--d-sidebar-width)); box-shadow: none; }
+  .sidebar.open { left: 0; box-shadow: var(--d-shadow-md); }
+  .main-content {
+    margin-left: 0;
+    padding-top: calc(var(--d-nav-height) + 1.25rem);
+    padding-left: 1rem; padding-right: 1rem;
+  }
+  .planner-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE — ≤ 480px (small mobile)
+══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .page-header h1 { font-size: 1.35rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .stat-card-value { font-size: 1.1rem; }
+  .toast { right: 0.75rem; left: 0.75rem; max-width: 100%; bottom: 1rem; }
+  .day-selector { gap: 5px; }
+  .day-btn { width: 34px; height: 34px; font-size: 0.68rem; }
+}
+
+/* Print */
+@media print {
+  .sidebar, .mobile-header, .sidebar-overlay { display: none !important; }
+  .main-content { margin-left: 0; padding: 0; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/>
+      <path d="M12 2c0 0 4 4 4 10"/><path d="M12 2c0 0-4 4-4 10"/>
+      <path d="M2 12h20"/><path d="M19 5l2-3"/>
+      <circle cx="21" cy="2" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+    Cybervast SmartLMS
+  </div>
+
+  <div class="sidebar-search mb-6">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" class="form-input" placeholder="Search…" aria-label="Search">
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="/dashboard.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Dashboard
+    </a></li>
+    <li><a href="/course.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      My Courses
+    </a></li>
+    <li><a href="/planner.html" class="nav-link active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Study Planner
+    </a></li>
+    <li><a href="/chat.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat Support
+    </a></li>
+    <li><a href="/achievements.html" class="nav-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Achievements
+    </a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    <button id="theme-toggle" aria-label="Toggle theme">
+      <svg id="theme-icon-sb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      Toggle Theme
+    </button>
+    <button class="btn btn-danger w-full logout-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ═══════════ MOBILE HEADER ═══════════ -->
+<div class="mobile-header">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10"/><path d="M12 2c0 0 4 4 4 10"/><path d="M12 2c0 0-4 4-4 10"/><path d="M2 12h20"/></svg>
+    Cybervast SmartLMS
+  </div>
+  <div class="mobile-header-actions">
+    <button id="theme-toggle-mobile" class="btn-icon" aria-label="Toggle theme">
+      <svg id="theme-icon-mob" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <button class="btn-icon logout-btn" aria-label="Logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+    <button class="hamburger" id="sidebar-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+      <svg id="hamburger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN CONTENT ═══════════ -->
+<main class="main-content">
+
+  <div class="page-header">
+    <div>
+      <h1>Smart Study Planner</h1>
+      <p class="text-muted">Design your learning schedule and get a realistic completion forecast.</p>
+    </div>
+  </div>
+
+  <div class="planner-grid">
+
+    <!-- ── LEFT: Form ── -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+      <!-- Create Plan Card -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Create Your Plan
+        </div>
+
+        <!-- Active course chip -->
+        <div class="active-course-chip" id="course-chip">
+          <div class="course-chip-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <div class="course-chip-label">Selected Course</div>
+            <div class="course-chip-name" id="chip-course-name">No course selected</div>
+          </div>
+        </div>
+
+        <!-- Course picker -->
+        <div class="form-group">
+          <label class="form-label" for="course-select">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Pick a Course
+          </label>
+          <select id="course-select" class="form-input">
+            <option value="">— Choose a course —</option>
+            <option value="web-dev" data-hours="24">Full-Stack Web Development (24h)</option>
+            <option value="ui-ux" data-hours="18">UI/UX Design Fundamentals (18h)</option>
+          </select>
+        </div>
+
+        <!-- Hours per day -->
+        <div class="form-group">
+          <label class="form-label" for="hours-slider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Hours per study day
+            <span class="range-value-badge" id="hours-badge">2</span>
+          </label>
+          <div class="range-wrap">
+            <input type="range" id="hours-slider" min="1" max="8" value="2" step="0.5">
+            <div class="range-labels"><span>0.5h</span><span>2h</span><span>4h</span><span>6h</span><span>8h</span></div>
+          </div>
+        </div>
+
+        <!-- Study days selector -->
+        <div class="form-group">
+          <label class="form-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Study days per week
+          </label>
+          <div class="day-selector" id="day-selector">
+            <button type="button" class="day-btn selected" data-day="Mon">Mon</button>
+            <button type="button" class="day-btn selected" data-day="Tue">Tue</button>
+            <button type="button" class="day-btn selected" data-day="Wed">Wed</button>
+            <button type="button" class="day-btn selected" data-day="Thu">Thu</button>
+            <button type="button" class="day-btn selected" data-day="Fri">Fri</button>
+            <button type="button" class="day-btn" data-day="Sat">Sat</button>
+            <button type="button" class="day-btn" data-day="Sun">Sun</button>
+          </div>
+        </div>
+
+        <!-- Target date -->
+        <div class="form-group">
+          <label class="form-label" for="target-date">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Target completion date
+          </label>
+          <input type="date" id="target-date" class="form-input">
+        </div>
+
+        <!-- Study goal -->
+        <div class="form-group">
+          <label class="form-label" for="study-goal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><polyline points="12 16 12 16"/></svg>
+            Study goal (optional)
+          </label>
+          <input type="text" id="study-goal" class="form-input" placeholder="e.g. Land a frontend developer job">
+        </div>
+
+        <button id="create-plan-btn" class="btn btn-primary w-full" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Generate Plan
+        </button>
+      </div>
+
+      <!-- Saved Plans Card -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Saved Plans
+        </div>
+        <div id="saved-plans-list">
+          <div class="no-plans-msg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+            No saved plans yet. Generate one above!
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left col -->
+
+    <!-- ── RIGHT: Result ── -->
+    <div id="planner-result">
+      <div class="card" style="min-height:340px;">
+        <div class="result-empty" id="result-empty-state">
+          <div class="result-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/></svg>
+          </div>
+          <h3>Your Plan Will Appear Here</h3>
+          <p>Select a course, set your hours &amp; study days, then hit <strong>Generate Plan</strong>.</p>
+        </div>
+        <div id="result-content" style="display:none;"></div>
+      </div>
+    </div>
+
+  </div><!-- /planner-grid -->
+</main>
+
+<div id="toast-container"></div>
+
+<!-- ═══════════ SCRIPT ═══════════ -->
+<script>
+/* ══════════════════════════════════════════════
+   COURSE DATA
+══════════════════════════════════════════════ */
+const COURSES = {
+  'web-dev': { title: 'Full-Stack Web Development', hours: 24, modules: 8 },
+  'ui-ux':   { title: 'UI/UX Design Fundamentals',  hours: 18, modules: 6 }
+};
+
+const DAYS_ALL = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let selectedCourseId = '';
+let hoursPerDay      = 2;
+let selectedDays     = ['Mon','Tue','Wed','Thu','Fri'];
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+const SVG_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const SVG_WARN  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+const SVG_INFO  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icon = type === 'success' ? SVG_CHECK : type === 'error' ? SVG_WARN : SVG_INFO;
+  t.innerHTML = icon + `<span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(()=>t.remove(),350); }, 3200);
+}
+
+/* ══════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════ */
+const SUN_SVG  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON_SVG = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+function getTheme() { return localStorage.getItem('cv-theme') || 'light'; }
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem('cv-theme', t);
+  const isDark = t === 'dark';
+  const si = document.getElementById('theme-icon-sb');
+  const mi = document.getElementById('theme-icon-mob');
+  if (si) si.innerHTML = isDark ? SUN_SVG : MOON_SVG;
+  if (mi) mi.innerHTML = isDark ? SUN_SVG : MOON_SVG;
+}
+function toggleTheme() { applyTheme(getTheme() === 'dark' ? 'light' : 'dark'); }
+document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+const sidebar   = document.getElementById('sidebar');
+const overlay   = document.getElementById('sidebar-overlay');
+const toggleBtn = document.getElementById('sidebar-toggle');
+const hamIcon   = document.getElementById('hamburger-icon');
+let   sidebarOpen = false;
+const MENU_SVG  = `<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>`;
+const CLOSE_SVG = `<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>`;
+
+function openSidebar()  { sidebarOpen=true;  sidebar.classList.add('open');    overlay.classList.add('open');    toggleBtn.classList.add('open');    toggleBtn.setAttribute('aria-expanded','true');  if(hamIcon) hamIcon.innerHTML=CLOSE_SVG; document.body.style.overflow='hidden'; }
+function closeSidebar() { sidebarOpen=false; sidebar.classList.remove('open'); overlay.classList.remove('open'); toggleBtn.classList.remove('open'); toggleBtn.setAttribute('aria-expanded','false'); if(hamIcon) hamIcon.innerHTML=MENU_SVG;  document.body.style.overflow=''; }
+toggleBtn?.addEventListener('click', () => sidebarOpen ? closeSidebar() : openSidebar());
+overlay?.addEventListener('click', closeSidebar);
+document.addEventListener('keydown', e => { if (e.key==='Escape' && sidebarOpen) closeSidebar(); });
+
+/* ══════════════════════════════════════════════
+   LOGOUT
+══════════════════════════════════════════════ */
+document.querySelectorAll('.logout-btn').forEach(btn => {
+  btn.addEventListener('click', () => { localStorage.removeItem('lms-session'); window.location.href='/dashboard.html'; });
+});
+
+/* ══════════════════════════════════════════════
+   FORM CONTROLS
+══════════════════════════════════════════════ */
+// Course select
+const courseSelect = document.getElementById('course-select');
+courseSelect.addEventListener('change', () => {
+  selectedCourseId = courseSelect.value;
+  const course     = COURSES[selectedCourseId];
+  document.getElementById('chip-course-name').textContent = course ? course.title : 'No course selected';
+  checkFormReady();
+});
+
+// Hours slider
+const hoursSlider = document.getElementById('hours-slider');
+const hoursBadge  = document.getElementById('hours-badge');
+hoursSlider.addEventListener('input', () => {
+  hoursPerDay = parseFloat(hoursSlider.value);
+  hoursBadge.textContent = hoursPerDay % 1 === 0 ? hoursPerDay + 'h' : hoursPerDay + 'h';
+  checkFormReady();
+});
+
+// Day selector toggle
+document.getElementById('day-selector').addEventListener('click', e => {
+  const btn = e.target.closest('.day-btn');
+  if (!btn) return;
+  const day = btn.dataset.day;
+  if (selectedDays.includes(day)) {
+    if (selectedDays.length === 1) { showToast('You must keep at least one study day.', 'error'); return; }
+    selectedDays = selectedDays.filter(d => d !== day);
+    btn.classList.remove('selected');
+  } else {
+    selectedDays.push(day);
+    btn.classList.add('selected');
+  }
+  checkFormReady();
+});
+
+// Target date — set min to tomorrow
+const targetDateInput = document.getElementById('target-date');
+const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+targetDateInput.min = tomorrow.toISOString().split('T')[0];
+targetDateInput.addEventListener('change', checkFormReady);
+
+// Form readiness
+function checkFormReady() {
+  const ready = selectedCourseId && selectedDays.length > 0;
+  document.getElementById('create-plan-btn').disabled = !ready;
+}
+
+/* ══════════════════════════════════════════════
+   DATE HELPERS
+══════════════════════════════════════════════ */
+function formatDate(d) {
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function addWeeks(d, w) {
+  const r = new Date(d); r.setDate(r.getDate() + w * 7); return r;
+}
+function weeksFromNow(totalHours, hpd, daysPerWeek) {
+  const totalDays  = Math.ceil(totalHours / hpd);
+  const totalWeeks = Math.ceil(totalDays / daysPerWeek);
+  return totalWeeks;
+}
+function monthsBetween(start, end) {
+  const diff = end - start;
+  return Math.round(diff / (1000 * 60 * 60 * 24 * 30.44) * 10) / 10;
+}
+
+/* ══════════════════════════════════════════════
+   GENERATE PLAN
+══════════════════════════════════════════════ */
+document.getElementById('create-plan-btn').addEventListener('click', generatePlan);
+
+function generatePlan() {
+  if (!selectedCourseId) return;
+  const course      = COURSES[selectedCourseId];
+  const daysPerWeek = selectedDays.length;
+  const totalWeeks  = weeksFromNow(course.hours, hoursPerDay, daysPerWeek);
+  const today       = new Date();
+  const estimatedEnd = addWeeks(today, totalWeeks);
+
+  // Target date feasibility
+  let feasibility = 'feasible';
+  let feasibilityMsg = '';
+  let targetDate  = null;
+
+  if (targetDateInput.value) {
+    targetDate = new Date(targetDateInput.value);
+    const targetWeeks = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24 * 7));
+    if (targetWeeks < totalWeeks * 0.75) {
+      feasibility = 'danger';
+      feasibilityMsg = `Your target date is too tight. You'd need roughly ${totalWeeks} weeks at this pace — consider more study time or days.`;
+    } else if (targetWeeks < totalWeeks) {
+      feasibility = 'warning';
+      feasibilityMsg = `Your target is a bit ambitious. You're ${totalWeeks - targetWeeks} week(s) short. Try adding more daily hours or days.`;
+    } else {
+      feasibilityMsg = `Great! You have a comfortable ${targetWeeks - totalWeeks} extra week(s) of buffer before your target date.`;
+    }
+  } else {
+    feasibilityMsg = `At this pace you'll finish in approximately ${totalWeeks} weeks (${formatDate(estimatedEnd)}).`;
+  }
+
+  const totalHoursPerWeek = hoursPerDay * daysPerWeek;
+  const completionDate    = targetDate || estimatedEnd;
+  const monthsTaken       = monthsBetween(today, completionDate);
+  const pctComplete       = calcCourseProgress(selectedCourseId);
+
+  // Build schedule rows
+  const scheduleRows = DAYS_ALL.map(d => {
+    const isStudy = selectedDays.includes(d);
+    return `<tr>
+      <td><span class="day-pill ${isStudy?'active':'rest'}">${d}</span></td>
+      <td>${isStudy ? `${hoursPerDay}h study` : '—'}</td>
+      <td style="color:var(--d-text-3);font-size:0.75rem;">${isStudy ? getStudyTip(d) : 'Rest day'}</td>
+    </tr>`;
+  }).join('');
+
+  // Build week-by-week milestones
+  const milestones = buildMilestones(course, totalWeeks, today);
+
+  // Tips
+  const tips = getTips(hoursPerDay, daysPerWeek, totalWeeks);
+
+  // Render
+  document.getElementById('result-empty-state').style.display = 'none';
+  document.getElementById('result-content').style.display = 'block';
+  document.getElementById('result-content').innerHTML = buildResultHTML({
+    course, feasibility, feasibilityMsg,
+    totalWeeks, totalHoursPerWeek, hoursPerDay, daysPerWeek,
+    completionDate, monthsTaken, pctComplete,
+    scheduleRows, milestones, tips
+  });
+
+  // Animate ring after render
+  requestAnimationFrame(() => {
+    const r = 42, circ = 2 * Math.PI * r;
+    const fill = document.getElementById('ring-fill-el');
+    if (fill) {
+      fill.setAttribute('stroke-dasharray', circ);
+      fill.setAttribute('stroke-dashoffset', circ - (pctComplete / 100) * circ);
+    }
+  });
+
+  // Save plan
+  savePlan({ courseId: selectedCourseId, courseTitle: course.title, hoursPerDay, daysPerWeek, selectedDays: [...selectedDays], totalWeeks, completionDate: completionDate.toISOString() });
+  showToast('Study plan generated!', 'success');
+}
+
+function buildResultHTML({ course, feasibility, feasibilityMsg, totalWeeks, totalHoursPerWeek, hoursPerDay, daysPerWeek, completionDate, monthsTaken, pctComplete, scheduleRows, milestones, tips }) {
+  const feasIcon = feasibility === 'feasible'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+    : feasibility === 'warning'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+
+  const goal = document.getElementById('study-goal').value.trim();
+  const r    = 42, circ = 2 * Math.PI * r;
+
+  return `
+    ${goal ? `<div style="background:var(--d-primary-light);border:1.5px solid var(--d-border-strong);border-radius:var(--d-radius-sm);padding:0.75rem 1rem;margin-bottom:1.25rem;font-size:0.85rem;color:var(--d-primary);font-weight:600;">
+      🎯 Goal: ${goal}
+    </div>` : ''}
+
+    <div class="feasibility-banner ${feasibility}">
+      ${feasIcon}
+      <span>${feasibilityMsg}</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Hours / Week
+        </div>
+        <div class="stat-card-value">${totalHoursPerWeek}h</div>
+        <div class="stat-card-sub">${hoursPerDay}h × ${daysPerWeek} days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Total Weeks
+        </div>
+        <div class="stat-card-value">${totalWeeks}</div>
+        <div class="stat-card-sub">${course.hours}h total content</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Finish By
+        </div>
+        <div class="stat-card-value" style="font-size:1rem;">${formatDate(completionDate)}</div>
+        <div class="stat-card-sub">~${monthsTaken} month${monthsTaken !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="20 6 9 17 4 12"/></svg>
+          Done So Far
+        </div>
+        <div class="stat-card-value" style="color:var(--d-primary)">${pctComplete}%</div>
+        <div class="stat-card-sub">of ${course.modules} modules</div>
+      </div>
+    </div>
+
+    <!-- Progress ring -->
+    <div class="progress-ring-wrap">
+      <svg class="ring-svg" width="72" height="72" viewBox="0 0 100 100">
+        <circle class="ring-bg"   cx="50" cy="50" r="${r}" stroke-width="10"/>
+        <circle class="ring-fill" id="ring-fill-el" cx="50" cy="50" r="${r}" stroke-width="10"
+          stroke-dasharray="${circ}" stroke-dashoffset="${circ}" />
+      </svg>
+      <div class="progress-ring-info">
+        <h4>${course.title}</h4>
+        <p>${pctComplete > 0 ? `You're ${pctComplete}% through — keep it up!` : 'Start your first lesson to track progress here.'}</p>
+      </div>
+    </div>
+
+    <!-- Weekly schedule table -->
+    <div class="timeline-section">
+      <div class="timeline-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Weekly Schedule
+      </div>
+      <div style="border:1px solid var(--d-border);border-radius:var(--d-radius-sm);overflow:hidden;">
+        <table class="schedule-table">
+          <thead><tr><th>Day</th><th>Study Time</th><th>Focus</th></tr></thead>
+          <tbody>${scheduleRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="timeline-section">
+      <div class="timeline-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Key Milestones
+      </div>
+      <div class="timeline">${milestones}</div>
+    </div>
+
+    <!-- Tips -->
+    <div class="timeline-section" style="margin-bottom:0;">
+      <div class="timeline-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><polyline points="12 16 12 16"/></svg>
+        Study Tips
+      </div>
+      <div class="tips-list">${tips}</div>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="generatePlan()" style="flex:1;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Recalculate
+      </button>
+      <a href="/course.html" class="btn btn-outline" style="flex:1;text-align:center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Start Learning
+      </a>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   MILESTONE BUILDER
+══════════════════════════════════════════════ */
+function buildMilestones(course, totalWeeks, today) {
+  const dots  = ['primary','warning','success'];
+  const marks  = [
+    { label: 'Start',      week: 0,                       dot: 'primary' },
+    { label: 'Halfway',    week: Math.floor(totalWeeks/2), dot: 'warning' },
+    { label: 'Final push', week: Math.floor(totalWeeks*0.8),dot: 'warning' },
+    { label: '🎉 Complete!',week: totalWeeks,              dot: 'success' }
+  ];
+  return marks.map(m => {
+    const d = addWeeks(today, m.week);
+    return `<div class="timeline-item">
+      <div class="timeline-dot ${m.dot}"></div>
+      <div class="timeline-label">${m.label}</div>
+      <div class="timeline-sub">${m.week === 0 ? 'Today — ' : `Week ${m.week} — `}${formatDate(d)}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   STUDY TIPS
+══════════════════════════════════════════════ */
+const FOCUS_MAP = {
+  Mon:'Review notes from last session',Tue:'New lesson + exercises',
+  Wed:'Practice project work',Thu:'Quiz yourself on recent topics',
+  Fri:'Wrap up the week, plan next',Sat:'Deep dive or catch-up session',Sun:'Light review or rest'
+};
+function getStudyTip(day) { return FOCUS_MAP[day] || 'Study session'; }
+
+function getTips(hpd, dpw, weeks) {
+  const items = [
+    { icon:'purple', text:'Use the Pomodoro technique — 25 min focus, 5 min break — to stay sharp during study blocks.', svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+    { icon:'green',  text:'Review your notes within 24 hours of a lesson. Spaced repetition dramatically improves retention.', svg:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>' },
+    { icon:'yellow', text: hpd >= 3 ? 'With ' + hpd + 'h/day, take a proper lunch break midway — your focus will thank you.' : 'Even ' + hpd + 'h/day is powerful when done consistently. Consistency beats intensity.' , svg:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><polyline points="12 16 12 16"/>' },
+    { icon:'purple', text: dpw >= 5 ? 'Great commitment — ' + dpw + ' days/week! Make sure rest days are genuine rest; avoid burnout.' : 'Consider adding a 4th or 5th study day to hit your goals faster without increasing daily hours.', svg:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/>' }
+  ];
+  return items.map(i => `
+    <div class="tip-item">
+      <div class="tip-icon ${i.icon}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${i.svg}</svg>
+      </div>
+      <span>${i.text}</span>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════
+   PROGRESS (reads from course.html localStorage)
+══════════════════════════════════════════════ */
+function calcCourseProgress(courseId) {
+  try {
+    const p = JSON.parse(localStorage.getItem('lms-progress') || '{}');
+    const COURSE_TOTALS = { 'web-dev': { lessons: 6, quizzes: 2 }, 'ui-ux': { lessons: 6, quizzes: 2 } };
+    const totals = COURSE_TOTALS[courseId];
+    if (!totals || !p[courseId]) return 0;
+    const totalItems = totals.lessons + totals.quizzes;
+    let done = 0;
+    if (p[courseId].lessons) done += Object.keys(p[courseId].lessons).length;
+    if (p[courseId].quizzes) done += Object.keys(p[courseId].quizzes).length;
+    return Math.min(100, Math.round((done / totalItems) * 100));
+  } catch(e) { return 0; }
+}
+
+/* ══════════════════════════════════════════════
+   SAVED PLANS
+══════════════════════════════════════════════ */
+function getSavedPlans() {
+  try { return JSON.parse(localStorage.getItem('lms-saved-plans') || '[]'); }
+  catch(e) { return []; }
+}
+function setSavedPlans(plans) { localStorage.setItem('lms-saved-plans', JSON.stringify(plans)); }
+
+function savePlan(plan) {
+  const plans = getSavedPlans();
+  plan.id  = Date.now();
+  plan.date = new Date().toISOString();
+  plans.unshift(plan);
+  if (plans.length > 5) plans.length = 5; // keep last 5
+  setSavedPlans(plans);
+  renderSavedPlans();
+}
+
+function deletePlan(id) {
+  const plans = getSavedPlans().filter(p => p.id !== id);
+  setSavedPlans(plans);
+  renderSavedPlans();
+  showToast('Plan deleted.', 'info');
+}
+
+function loadPlan(plan) {
+  // Restore UI state
+  selectedCourseId = plan.courseId;
+  const sel = document.getElementById('course-select');
+  sel.value = plan.courseId;
+  document.getElementById('chip-course-name').textContent = plan.courseTitle;
+
+  hoursPerDay = plan.hoursPerDay;
+  const slider = document.getElementById('hours-slider');
+  slider.value = hoursPerDay;
+  document.getElementById('hours-badge').textContent = hoursPerDay + 'h';
+
+  selectedDays = [...plan.selectedDays];
+  document.querySelectorAll('.day-btn').forEach(btn => {
+    btn.classList.toggle('selected', selectedDays.includes(btn.dataset.day));
+  });
+
+  if (plan.completionDate) {
+    const d = new Date(plan.completionDate);
+    targetDateInput.value = d.toISOString().split('T')[0];
+  }
+
+  document.getElementById('create-plan-btn').disabled = false;
+  generatePlan();
+  showToast('Plan loaded!', 'success');
+}
+
+function renderSavedPlans() {
+  const plans = getSavedPlans();
+  const el    = document.getElementById('saved-plans-list');
+  if (!plans.length) {
+    el.innerHTML = `<div class="no-plans-msg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+      No saved plans yet.
+    </div>`;
+    return;
+  }
+  el.innerHTML = plans.map(p => {
+    const d = new Date(p.date);
+    return `<div class="saved-plan-item">
+      <div class="saved-plan-info">
+        <div class="saved-plan-title">${p.courseTitle}</div>
+        <div class="saved-plan-meta">${p.hoursPerDay}h/day · ${p.daysPerWeek} days/wk · ${p.totalWeeks}wk · Saved ${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</div>
+      </div>
+      <div class="saved-plan-actions">
+        <button class="btn btn-sm btn-outline" onclick="loadPlan(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+          Load
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deletePlan(${p.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  applyTheme(getTheme());
+  renderSavedPlans();
+
+  // Pre-select active course from course player
+  const activeCourseId = localStorage.getItem('lms-active-course');
+  if (activeCourseId && COURSES[activeCourseId]) {
+    selectedCourseId = activeCourseId;
+    document.getElementById('course-select').value = activeCourseId;
+    document.getElementById('chip-course-name').textContent = COURSES[activeCourseId].title;
+    checkFormReady();
+  }
+});
+</script>
+</body>
+</html>
